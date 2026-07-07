@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Builds / output
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Prisma generated client
+packages/db/generated/
+**/.prisma/
+
+# Env / secrets — never commit
+.env
+.env.*
+!.env.example
+rsakey.md
+*.pem
+*.ppk
+*_rsa
+*_rsa.pub
+id_rsa*
+
+# Logs
+*.log
+npm-debug.log*
+logs/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Test / coverage
+coverage/
+
+# Generated report artifacts (local object storage; real S3 in production)
+storage/
+apps/api/storage/

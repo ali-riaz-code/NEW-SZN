@@ -1,0 +1,75 @@
+'use client'
+import { useFormState, useFormStatus } from 'react-dom'
+import Link from 'next/link'
+import { loginAction } from './actions'
+
+const INPUT =
+  'w-full bg-white/5 border border-white/10 rounded-xl h-11 px-4 text-white text-sm placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20 transition-all duration-150'
+
+const LABEL = 'block text-sm font-medium text-white/60 tracking-wide mb-1.5'
+
+function SubmitButton() {
+  const { pending } = useFormStatus()
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="liquid-glass animate-fade-rise-delay-2 rounded-xl w-full h-14 text-white font-medium text-base cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform duration-150 disabled:opacity-50"
+    >
+      {pending ? 'Signing in…' : 'Sign In'}
+    </button>
+  )
+}
+
+export function LoginForm() {
+  const [state, formAction] = useFormState(loginAction, null)
+
+  return (
+    <form action={formAction} className="space-y-4">
+      <div>
+        <label htmlFor="email" className={LABEL}>
+          Email
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          placeholder="you@example.com"
+          required
+          autoComplete="email"
+          className={INPUT}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="password" className={LABEL}>
+          Password
+        </label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          placeholder="••••••••"
+          required
+          autoComplete="current-password"
+          className={INPUT}
+        />
+      </div>
+
+      {state?.error && (
+        <p className="text-red-400/80 text-xs pt-0.5">{state.error}</p>
+      )}
+
+      <div className="flex justify-end">
+        <Link
+          href="/auth/forgot-password"
+          className="text-xs text-white/40 hover:text-white/60 transition-colors duration-150"
+        >
+          Forgot your password?
+        </Link>
+      </div>
+
+      <SubmitButton />
+    </form>
+  )
+}

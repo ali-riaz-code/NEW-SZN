@@ -1,0 +1,150 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color-scheme: dark;
+  }
+
+  body {
+    background-image:
+      radial-gradient(ellipse 70% 50% at 88% 8%, rgba(201, 169, 110, 0.13) 0%, transparent 60%),
+      radial-gradient(ellipse 75% 50% at 6% 108%, rgba(201, 169, 110, 0.065) 0%, transparent 52%);
+    background-attachment: fixed;
+  }
+
+  /* Reinforce dark color-scheme on selects so native dropdown popups render
+     dark regardless of the OS theme setting. */
+  select {
+    color-scheme: dark;
+  }
+
+  ::selection {
+    background-color: rgba(201, 169, 110, 0.22);
+    color: #ffffff;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.18);
+  }
+}
+
+/* ── Motion ──────────────────────────────────────────────────────────────────
+   Per PRODUCT.md: motion is a signal, not decoration. These animate the arrival
+   of data (a "loaded" state), never structure. All are disabled under
+   prefers-reduced-motion. */
+@layer utilities {
+  @keyframes szn-rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes szn-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes szn-sheen {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  .animate-rise {
+    animation: szn-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-fade {
+    animation: szn-fade 0.45s ease-out both;
+  }
+
+  /* Staggered entrance for direct children (dashboard KPI grids). */
+  .stagger-children > * {
+    animation: szn-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .stagger-children > *:nth-child(1) { animation-delay: 0.03s; }
+  .stagger-children > *:nth-child(2) { animation-delay: 0.06s; }
+  .stagger-children > *:nth-child(3) { animation-delay: 0.09s; }
+  .stagger-children > *:nth-child(4) { animation-delay: 0.12s; }
+  .stagger-children > *:nth-child(5) { animation-delay: 0.15s; }
+  .stagger-children > *:nth-child(6) { animation-delay: 0.18s; }
+  .stagger-children > *:nth-child(7) { animation-delay: 0.21s; }
+  .stagger-children > *:nth-child(8) { animation-delay: 0.24s; }
+  .stagger-children > *:nth-child(9) { animation-delay: 0.27s; }
+  .stagger-children > *:nth-child(10) { animation-delay: 0.30s; }
+  .stagger-children > *:nth-child(11) { animation-delay: 0.33s; }
+  .stagger-children > *:nth-child(12) { animation-delay: 0.36s; }
+  .stagger-children > *:nth-child(13) { animation-delay: 0.39s; }
+  .stagger-children > *:nth-child(n + 14) { animation-delay: 0.42s; }
+
+  /* Skeleton shimmer for loading states (route-level loading.tsx). */
+  .skeleton {
+    background: linear-gradient(
+      100deg,
+      rgba(255, 255, 255, 0.03) 30%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.03) 70%
+    );
+    background-size: 200% 100%;
+    animation: szn-sheen 1.5s linear infinite;
+  }
+
+  /* Shimmer for the gold value on the revenue trend / headline numbers. */
+  .accent-sheen {
+    background: linear-gradient(
+      100deg,
+      #c9a96e 20%,
+      #f0dcae 40%,
+      #c9a96e 60%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: szn-sheen 6s linear infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-rise,
+  .animate-fade,
+  .stagger-children > *,
+  .skeleton,
+  .accent-sheen {
+    animation: none !important;
+  }
+  .accent-sheen {
+    -webkit-text-fill-color: #c9a96e;
+  }
+}

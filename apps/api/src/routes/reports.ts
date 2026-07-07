@@ -1,0 +1,185 @@
+// Reports API (Phase 11) — admin only.
+//   POST /api/reports/generate  → generate a report now (daily/weekly/monthly)
+//   GET  /api/reports           → searchable/filterable history (paginated)
+//   GET  /api/reports/:id/download → stream the stored PDF (authed)
+
+import { Router } from 'express'
+import { z } from 'zod'
+import { prisma } from '@new-szn/db'
+import type { Prisma, ReportType } from '@new-szn/db'
+import { requireRole } from '../middleware/auth'
+import { id } from '../lib/validation'
+import { generateReport } from '../integrations/reports'
+import { storage } from '../integrations/storage'
+
+const router = Router()
+router.use(requireRole(['ADMIN']))
+
+const generateSchema = z.object({
+  clientId: id,
+  cadence: z.enum(['daily', 'weekly', 'monthly']),
+})
+
+// POST /api/reports/generate — "Generate Now".
+router.post('/generate', async (req, res, next) => {
+  try {
+    const parsed = generateSchema.safeParse(req.body)
+    if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() })
+    const { userId } = req.user!
+
+    const client = await prisma.client.findUnique({
+      where: { id: parsed.data.clientId },
+      select: { id: true },
+    })
+    if (!client) return res.status(404).json({ error: 'Client not found.' })
+
+    const result = await generateReport(parsed.data.clientId, parsed.data.cadence, userId)
+    if (!result.ok) return res.status(422).json({ error: result.error })
+    return res.status(201).json({ report: result.report })
+  } catch (error) {
+    next(error)
+  }
+})
+
+const listSchema = z.object({
+  clientId: id.optional(),
+  type: z.enum(['DAILY', 'WEEKLY', 'MONTHLY']).optional(),
+  from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(25),
+})
+
+// GET /api/reports — history, filterable by client/type/date, paginated.
+router.get('/', async (req, res, next) => {
+  try {
+    const parsed = listSchema.safeParse(req.query)
+    if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() })
+    const q = parsed.data
+
+    const where: Prisma.ReportWhereInput = {}
+    if (q.clientId) where.clientId = q.clientId
+    if (q.type) where.type = q.type as ReportType
+    if (q.from || q.to) {
+      const f: { gte?: Date; lte?: Date } = {}
+      if (q.from) f.gte = new Date(`${q.from}T00:00:00`)
+      if (q.to) f.lte = new Date(`${q.to}T23:59:59.999`)
+      where.generatedAt = f
+    }
+
+    const [total, rows] = await Promise.all([
+      prisma.report.count({ where }),
+      prisma.report.findMany({
+        where,
+        orderBy: { generatedAt: 'desc' },
+        skip: (q.page - 1) * q.pageSize,
+        take: q.pageSize,
+        select: {
+          id: true,
+          type: true,
+          periodStart: true,
+          periodEnd: true,
+          generatedAt: true,
+          s3Url: true,
+          client: { select: { id: true, name: true } },
+          generator: { select: { name: true } },
+        },
+      }),
+    ])
+
+    return res.json({
+      rows: rows.map((r) => ({
+        id: r.id,
+        type: r.type,
+        clientId: r.client.id,
+        clientName: r.client.name,
+        periodStart: r.periodStart.toISOString().slice(0, 10),
+        periodEnd: r.periodEnd.toISOString().slice(0, 10),
+        generatedAt: r.generatedAt.toISOString(),
+        generatedBy: r.generator.name,
+        downloadUrl: r.s3Url,
+      })),
+      total,
+      page: q.page,
+      pageSize: q.pageSize,
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
+const scheduleQuerySchema = z.object({ clientId: id })
+const scheduleBodySchema = z.object({
+  clientId: id,
+  schedule: z.enum(['daily', 'weekly', 'monthly']).nullable(),
+})
+
+// GET /api/reports/schedule?clientId=xxx — current auto-generation cadence.
+router.get('/schedule', async (req, res, next) => {
+  try {
+    const parsed = scheduleQuerySchema.safeParse(req.query)
+    if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() })
+    const client = await prisma.client.findUnique({
+      where: { id: parsed.data.clientId },
+      select: { reportSchedule: true },
+    })
+    if (!client) return res.status(404).json({ error: 'Client not found.' })
+    return res.json({ schedule: client.reportSchedule ?? null })
+  } catch (error) {
+    next(error)
+  }
+})
+
+// PATCH /api/reports/schedule — set or clear the auto-generation cadence.
+router.patch('/schedule', async (req, res, next) => {
+  try {
+    const parsed = scheduleBodySchema.safeParse(req.body)
+    if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() })
+    const exists = await prisma.client.findUnique({
+      where: { id: parsed.data.clientId },
+      select: { id: true },
+    })
+    if (!exists) return res.status(404).json({ error: 'Client not found.' })
+    await prisma.client.update({
+      where: { id: parsed.data.clientId },
+      data: { reportSchedule: parsed.data.schedule },
+    })
+    return res.json({ ok: true })
+  } catch (error) {
+    next(error)
+  }
+})
+
+// GET /api/reports/:id/download — stream the stored PDF.
+router.get('/:id/download', async (req, res, next) => {
+  try {
+    const rid = id.safeParse(req.params.id)
+    if (!rid.success) return res.status(400).json({ error: rid.error.flatten() })
+
+    const report = await prisma.report.findUnique({
+      where: { id: rid.data },
+      select: { s3Key: true, type: true, client: { select: { name: true } }, periodEnd: true },
+    })
+    if (!report) return res.status(404).json({ error: 'Report not found.' })
+
+    let body: Buffer
+    try {
+      body = await storage.getObject(report.s3Key)
+    } catch {
+      return res.status(410).json({ error: 'Report file is no longer available.' })
+    }
+
+    const safeName =
+      `${report.client.name}-${report.type}-${report.periodEnd.toISOString().slice(0, 10)}.pdf`.replace(
+        /[^a-zA-Z0-9._-]+/g,
+        '_',
+      )
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', `attachment; filename="${safeName}"`)
+    return res.send(body)
+  } catch (error) {
+    next(error)
+  }
+})
+
+export default router

@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "rootDir": "src",
+    "outDir": "dist",
+    "noEmit": false,
+    // Classic "Node" resolution can't read the workspace packages' subpath
+    // `exports` (e.g. "@new-szn/db/kpi"). Point it at the node_modules symlink so
+    // TS resolves it as an external module (exempt from rootDir). The bare
+    // "@new-szn/db" / "@new-szn/types" mains already resolve via node_modules.
+    // This changes neither the emitted require() paths nor the tsx runtime.
+    "baseUrl": ".",
+    "paths": {
+      "@new-szn/db/kpi": ["../../node_modules/@new-szn/db/src/kpi/index.ts"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

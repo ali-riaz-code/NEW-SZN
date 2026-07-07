@@ -1,0 +1,560 @@
+// NEW SZN — database schema
+// Phase 1: complete model set covering all 12 build phases.
+//
+// Conventions:
+//   - All monetary amounts stored as Int minor units (e.g. øre for DKK, cents for USD).
+//     Always paired with a `currency String` (ISO 4217). Never assume USD.
+//   - Every client-owned row has a `clientId String` foreign key.
+//   - Soft deletes via `isActive Boolean` on User and Client; hard deletes restricted elsewhere.
+//   - Table names: snake_case via @@map.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  CLOSER
+  SETTER
+  CLIENT
+}
+
+enum CallOutcome {
+  CLOSED_PIF       // Full payment
+  CLOSED_SPLIT_PAY // Split payment
+  CLOSED_DEPOSIT   // Deposit only
+  OFFER_DECLINED   // Showed, offered, didn't buy — triggers Loss Debrief
+  NOT_A_FIT        // No offer made — triggers Loss Debrief
+  NO_SHOW
+  CANCELLED
+  RESCHEDULED
+  DRAG_OVER_SHOW   // Dragged-over call that showed
+}
+
+enum ObjectionType {
+  THINK_ABOUT_IT
+  MONEY
+  TIME
+  PARTNER
+  FEAR
+  VALUE
+}
+
+enum LeadTagType {
+  CLOSED
+  FOLLOW_UP
+  HOT_FOLLOW_UP
+  NO_SHOW
+  DECLINED
+  NOT_INTERESTED
+  RESCHEDULED
+}
+
+enum AdType {
+  TYPEFORM
+  NORMAL
+}
+
+enum AdSyncStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum AlertSeverity {
+  WARNING  // >20% drop vs 28-day average
+  CRITICAL // >35% drop vs 28-day average
+}
+
+enum ReportType {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+// ─── Core identity ────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  passwordHash  String
+  role          Role
+  isActive      Boolean   @default(true)
+  emailVerified DateTime?
+  image         String?
+  // Slack user id (e.g. "U0123ABCD") for personalized Daily Target DMs.
+  // Nullable — users without one simply don't receive DMs. Set via Settings (Phase 11).
+  slackUserId   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  memberships         Membership[]
+  calls               Call[]               @relation("CloserCalls")
+  setterLogs          SetterLog[]
+  leadTags            LeadTag[]            @relation("LeadTagTagger")
+  inviteTokens        InviteToken[]
+  passwordResetTokens PasswordResetToken[]
+  reports             Report[]             @relation("ReportGenerator")
+
+  @@map("users")
+}
+
+model Client {
+  id              String   @id @default(cuid())
+  name            String
+  currency        String   @default("DKK")
+  timezone        String   @default("Europe/Copenhagen")
+  isActive        Boolean  @default(true)
+  // Meta (Facebook/Instagram) ad account id for this client, e.g. "act_1234567890".
+  // Nullable — clients without ads simply don't sync. Access is via the agency
+  // system-user token (META_SYSTEM_USER_TOKEN), scoped per ad account.
+  metaAdAccountId String?
+  // Anomaly Detection drop thresholds (percent), admin-configurable per client.
+  // Defaults preserve the Phase 10 hardcoded behavior (20% warning / 35% critical).
+  anomalyWarningPct  Int      @default(20)
+  anomalyCriticalPct Int      @default(35)
+  // Close Rate is a ratio (dealsWon / callsTaken), not a summable KPI, so it gets
+  // its own admin-configurable drop thresholds, separate from the four above.
+  closeRateAnomalyWarningPct  Int @default(20)
+  closeRateAnomalyCriticalPct Int @default(35)
+  // Deals whose revenueMinor >= this threshold trigger a big-deal Slack
+  // celebration. Per-client (not global) because revenue is denominated in
+  // each client's own currency. 50,000 major units by default.
+  bigDealThresholdMinor Int @default(5000000)
+  // Auto PDF generation cadence. null = off. Set via AI Reports page.
+  reportSchedule  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  memberships       Membership[]
+  calls             Call[]
+  setterLogs        SetterLog[]
+  campaigns         Campaign[]
+  adDailyMetrics    AdDailyMetric[]
+  adCreativeMetrics AdCreativeMetric[]
+  goals             Goal[]
+  alerts            Alert[]
+  pnlEntries        PnLEntry[]
+  commissionRecords CommissionRecord[]
+  reports           Report[]
+  adSyncLogs        AdSyncLog[]
+
+  @@map("clients")
+}
+
+model Membership {
+  id        String   @id @default(cuid())
+  userId    String
+  clientId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  client Client @relation(fields: [clientId], references: [id])
+
+  @@unique([userId, clientId])
+  @@map("memberships")
+}
+
+// ─── Sales & calls ────────────────────────────────────────────────────────────
+
+model Call {
+  id                 String         @id @default(cuid())
+  date               DateTime
+  clientId           String
+  closerId           String
+  leadName           String
+  leadPhone          String?
+  leadEmail          String?
+  leadSource         String?
+  outcome            CallOutcome
+  revenueMinor       Int            @default(0)
+  cashCollectedMinor Int            @default(0)
+  currency           String
+  objectionType      ObjectionType?
+  objectionNotes     String?
+  callDurationSecs   Int?
+  recordingUrl       String?
+  followUpNotes      String?
+  callSummary        String?
+  // Soft delete: non-null = deleted. Excluded from dashboard KPIs, leaderboards,
+  // reports and AI snapshots, but preserved because Commission/LeadTag/PnL data
+  // may reference the call. Recoverable + auditable. Never hard-delete.
+  deletedAt          DateTime?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  client   Client    @relation(fields: [clientId], references: [id])
+  closer   User      @relation("CloserCalls", fields: [closerId], references: [id])
+  leadTags LeadTag[]
+
+  @@index([clientId, date])
+  @@index([closerId, date])
+  @@map("calls")
+}
+
+// LeadTag is append-only: each row is a tagging event.
+// Current tag = most recent row per callId. History = all rows for that callId.
+model LeadTag {
+  id        String      @id @default(cuid())
+  callId    String
+  tagType   LeadTagType
+  taggedBy  String
+  createdAt DateTime    @default(now())
+
+  call   Call @relation(fields: [callId], references: [id])
+  tagger User @relation("LeadTagTagger", fields: [taggedBy], references: [id])
+
+  @@index([callId])
+  @@map("lead_tags")
+}
+
+// ─── Appointment setting ──────────────────────────────────────────────────────
+
+model SetterLog {
+  id                  String   @id @default(cuid())
+  date                DateTime
+  clientId            String
+  setterId            String
+  newConvos           Int      @default(0)
+  responses           Int      @default(0)
+  offers              Int      @default(0)
+  bookedCalls         Int      @default(0)
+  followUps           Int      @default(0)
+  followUpOffers      Int      @default(0)
+  followUpBookedCalls Int      @default(0)
+  followerCount       Int?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  client Client @relation(fields: [clientId], references: [id])
+  setter User   @relation(fields: [setterId], references: [id])
+
+  @@unique([setterId, clientId, date])
+  @@index([clientId, date])
+  @@map("setter_logs")
+}
+
+// ─── Ads & Facebook sync ──────────────────────────────────────────────────────
+
+model Campaign {
+  id               String   @id @default(cuid())
+  clientId         String
+  facebookId       String
+  name             String
+  adType           AdType
+  status           String   // "ACTIVE" | "PAUSED" | "ARCHIVED" — value from Meta API
+  dailyBudgetMinor Int?
+  currency         String
+  flaggedForReview Boolean  @default(false)
+  flagReason       String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  client            Client             @relation(fields: [clientId], references: [id])
+  adCreativeMetrics AdCreativeMetric[]
+  adSyncLogs        AdSyncLog[]
+
+  @@unique([clientId, facebookId])
+  @@map("campaigns")
+}
+
+// Client-level daily roll-up from both the Excel Ads Tracker and Meta API.
+model AdDailyMetric {
+  id                       String   @id @default(cuid())
+  date                     DateTime
+  clientId                 String
+  currency                 String
+
+  // Excel import fields (Ads Tracker client-level summary)
+  newAdFollows             Int      @default(0)
+  dailySpendMinor          Int      @default(0)
+  totalSpendMinor          Int      @default(0)
+  costPerLeadMinor         Int?
+  callsBooked              Int      @default(0)
+  revenueMinor             Int      @default(0)
+  cashCollectedMinor       Int      @default(0)
+
+  // Meta API aggregate fields (headline cards)
+  totalLeads               Int?
+  reach                    Int?
+  impressions              Int?
+  clicks                   Int?
+  ctr                      Decimal?
+  cpmMinor                 Int?
+  cpcMinor                 Int?
+  results                  Int?
+  costPerResultMinor       Int?
+  costPerFollowerMinor     Int?
+  costPerConversationMinor Int?
+  costPerCallMinor         Int?
+  costPerCustomerMinor     Int?
+  roasCash                 Decimal?
+  roasRevenue              Decimal?
+
+  createdAt                DateTime @default(now())
+
+  client Client @relation(fields: [clientId], references: [id])
+
+  @@unique([clientId, date])
+  @@map("ad_daily_metrics")
+}
+
+// Per-ad creative daily metrics — from the repeating ad block in the Excel Ads Tracker
+// and from Meta API per-ad data. Linked to Campaign when available.
+model AdCreativeMetric {
+  id                   String   @id @default(cuid())
+  date                 DateTime
+  clientId             String
+  campaignId           String?
+  adLabel              String
+  currency             String
+
+  // Excel import fields
+  follows              Int?
+  newAdFollows         Int?
+  dailySpendMinor      Int?
+  totalSpendMinor      Int?
+  costPerLeadMinor     Int?
+
+  // Meta API fields
+  reach                Int?
+  frequency            Decimal?
+  impressions          Int?
+  clicks               Int?
+  ctr                  Decimal?
+  cpmMinor             Int?
+  cpcMinor             Int?
+  results              Int?
+  costPerResultMinor   Int?
+  costPerFollowerMinor Int?
+
+  createdAt            DateTime @default(now())
+
+  client   Client    @relation(fields: [clientId], references: [id])
+  campaign Campaign? @relation(fields: [campaignId], references: [id])
+
+  @@index([clientId, date])
+  @@index([clientId, adLabel, date])
+  @@map("ad_creative_metrics")
+}
+
+// Tracks every sync attempt for cooldown enforcement and audit.
+// The 15-min cooldown is checked against the latest SUCCESS row for that clientId.
+model AdSyncLog {
+  id           String       @id @default(cuid())
+  clientId     String
+  campaignId   String?
+  status       AdSyncStatus
+  triggeredBy  String       // "auto" | userId
+  startedAt    DateTime     @default(now())
+  completedAt  DateTime?
+  errorMessage String?
+  durationMs   Int?
+  narrative    String?      // AI campaign narrative — populated in Phase 10
+
+  client   Client    @relation(fields: [clientId], references: [id])
+  campaign Campaign? @relation(fields: [campaignId], references: [id])
+
+  @@index([clientId, startedAt])
+  @@map("ad_sync_logs")
+}
+
+// ─── Goals ────────────────────────────────────────────────────────────────────
+
+// One row per KPI per month per client.
+// targetMinor for currency KPIs; targetValue for rate/percentage KPIs.
+// greenPct / amberPct are per-goal, admin-configurable, never hardcoded in UI.
+model Goal {
+  id          String   @id @default(cuid())
+  clientId    String
+  kpiKey      String   // "revenue" | "dealsWon" | "closeRate" | "roas" | etc.
+  month       Int      // 1–12
+  year        Int
+  targetMinor Int?
+  targetValue Decimal?
+  currency    String?
+  greenPct    Int      @default(75)
+  amberPct    Int      @default(50)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  client Client @relation(fields: [clientId], references: [id])
+
+  @@unique([clientId, kpiKey, month, year])
+  @@map("goals")
+}
+
+// ─── FX rates ─────────────────────────────────────────────────────────────────
+
+// One row per currency pair per calendar day.
+// Application converts at view time; amounts are never stored converted.
+model FxRate {
+  id           String   @id @default(cuid())
+  date         String   // YYYY-MM-DD
+  fromCurrency String
+  toCurrency   String
+  rate         Decimal
+  fetchedAt    DateTime @default(now())
+
+  @@unique([fromCurrency, toCurrency, date])
+  @@index([fromCurrency, toCurrency])
+  @@map("fx_rates")
+}
+
+// ─── Slack (global) ───────────────────────────────────────────────────────────
+//
+// One bot, one workspace: a single global bot token (SLACK_BOT_TOKEN env var,
+// never stored in the DB) and one shared "overall" channel for team-facing
+// messages (leaderboard, milestones, big-deal celebrations). Personal DMs
+// (Daily Targets, Loss Debrief, Anomaly alerts) go straight to each user's
+// slackUserId (see User.slackUserId) and need no channel at all. Clients never
+// receive Slack messages — there is no per-client Slack concept anywhere.
+//
+// Singleton row: always read/written via SLACK_SETTINGS_ID (see slack.ts).
+model SlackSettings {
+  id                     String   @id
+  overallChannelId       String?
+  leaderboardEnabled     Boolean  @default(true)
+  milestoneEnabled       Boolean  @default(true)
+  streakMilestoneEnabled Boolean  @default(true)
+  bigDealEnabled         Boolean  @default(true)
+  lossDebriefEnabled     Boolean  @default(true)
+  alertsEnabled          Boolean  @default(true)
+  dailyTargetsEnabled    Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@map("slack_settings")
+}
+
+// ─── Alerts ───────────────────────────────────────────────────────────────────
+
+model Alert {
+  id         String        @id @default(cuid())
+  clientId   String
+  severity   AlertSeverity
+  kpiKey     String
+  message    String
+  dropPct    Decimal
+  resolvedAt DateTime?
+  createdAt  DateTime      @default(now())
+
+  client Client @relation(fields: [clientId], references: [id])
+
+  @@index([clientId, createdAt])
+  @@map("alerts")
+}
+
+// ─── Financial data ───────────────────────────────────────────────────────────
+
+model CommissionRecord {
+  id              String    @id @default(cuid())
+  clientId        String
+  closerName      String
+  month           Int
+  year            Int
+  prospectName    String?
+  instagramHandle String?
+  channel         String?
+  closedDate      DateTime?
+  commissionMinor Int
+  currency        String
+  isVerified      Boolean   @default(false)
+  notes           String?
+  createdAt       DateTime  @default(now())
+
+  client Client @relation(fields: [clientId], references: [id])
+
+  @@map("commission_records")
+}
+
+// month: 1–12 for monthly rows; 0 = annual total row.
+model PnLEntry {
+  id           String   @id @default(cuid())
+  clientId     String
+  year         Int
+  month        Int
+  categoryName String
+  amountMinor  Int
+  currency     String
+  createdAt    DateTime @default(now())
+
+  client Client @relation(fields: [clientId], references: [id])
+
+  @@unique([clientId, year, month, categoryName])
+  @@map("pnl_entries")
+}
+
+// ─── Reports ──────────────────────────────────────────────────────────────────
+
+model Report {
+  id          String     @id @default(cuid())
+  clientId    String
+  type        ReportType @default(MONTHLY)
+  month       Int
+  year        Int
+  // The period the report covers (the "period"). For monthly this is the calendar
+  // month; for daily/weekly the resolved window. month/year mirror periodEnd.
+  periodStart DateTime
+  periodEnd   DateTime
+  s3Key       String
+  s3Url       String
+  generatedAt DateTime   @default(now())
+  generatedBy String
+
+  client    Client @relation(fields: [clientId], references: [id])
+  generator User   @relation("ReportGenerator", fields: [generatedBy], references: [id])
+
+  @@index([clientId, generatedAt])
+  @@map("reports")
+}
+
+// AI coaching personality, scoped per dashboard, agency-wide (not per client).
+// `tone` is a free-text instruction injected through the opts.tone seam on the
+// AI generators. Absent row = default voice (no tone injected).
+model AiConfig {
+  id        String   @id @default(cuid())
+  dashboard String   @unique // 'master' | 'sales' | 'ads' | 'setter'
+  tone      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("ai_configs")
+}
+
+// ─── Auth tokens ──────────────────────────────────────────────────────────────
+
+model InviteToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("invite_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}

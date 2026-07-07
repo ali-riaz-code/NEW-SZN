@@ -1,0 +1,37 @@
+{
+  "name": "new-szn",
+  "version": "0.0.0",
+  "private": true,
+  "description": "NEW SZN — agency performance dashboard (monorepo root)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "prisma": {
+    "schema": "packages/db/prisma/schema.prisma",
+    "seed": "tsx packages/db/prisma/seed.ts"
+  },
+  "scripts": {
+    "dev": "concurrently -n web,api -c blue,green \"npm:dev:web\" \"npm:dev:api\"",
+    "dev:web": "npm run dev -w @new-szn/web",
+    "dev:api": "npm run dev -w @new-szn/api",
+    "build": "npm run generate -w @new-szn/db && npm run build -w @new-szn/web && npm run build -w @new-szn/api",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "db:seed": "tsx packages/db/prisma/seed.ts"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "impeccable": "^2.3.2",
+    "prisma": "^5.22.0",
+    "typescript": "^5.6.3",
+    "xlsx": "^0.18.5"
+  }
+}
