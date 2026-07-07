@@ -211,6 +211,16 @@ export function FileTextIcon({ size = 16 }: { size?: number }) {
   )
 }
 
+export function InfoIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="8" cy="8" r="6.5"/>
+      <line x1="8" y1="5.5" x2="8" y2="5.51"/>
+      <path d="M8 8v3.5"/>
+    </svg>
+  )
+}
+
 export function SailIcon({ size = 28 }: { size?: number }) {
   return (
     <svg

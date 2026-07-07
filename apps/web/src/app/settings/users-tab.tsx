@@ -1,5 +1,6 @@
 'use client'
 import { useState, useTransition } from 'react'
+import { InfoIcon } from '@/components/icons'
 import {
   inviteUserAction,
   updateUserAction,
@@ -96,6 +97,11 @@ export function UsersTab({ users, clients }: { users: UserRow[]; clients: Client
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-gray-400">{u.role}</span>
+                  {u.slackUserId && (
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-[#0b2a17] text-[#4ade80] border border-[#4ade80]/30">
+                      Slack ✓
+                    </span>
+                  )}
                   {!u.isActive && <span className="text-[10px] text-red-400/70">deactivated</span>}
                   <button className={btnGhost} onClick={() => setEditId(editId === u.id ? null : u.id)}>
                     {editId === u.id ? 'Close' : 'Edit'}
@@ -180,9 +186,22 @@ function UserEditor({
         >
           {isActive ? 'Active' : 'Deactivated'}
         </button>
+      </div>
+      <div className="space-y-1.5">
+        <div className="flex items-center gap-1.5">
+          <label className="text-xs text-gray-400">Slack User ID</label>
+          <div className="group relative text-gray-600 cursor-help">
+            <InfoIcon size={14} />
+            <div className="absolute left-0 bottom-full mb-1 hidden group-hover:block bg-gray-950 border border-gray-800 rounded px-2 py-1.5 text-[10px] text-gray-300 whitespace-nowrap z-10">
+              Optional. Used to send DMs if email lookup fails.
+              <br />
+              Find in Slack: click profile → More → Copy member ID
+            </div>
+          </div>
+        </div>
         <input
-          className={`${input} w-40`}
-          placeholder="Slack user id"
+          className={input}
+          placeholder="e.g. U0ABC1234XYZ"
           value={slackUserId}
           onChange={(e) => setSlackUserId(e.target.value)}
         />

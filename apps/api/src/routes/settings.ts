@@ -70,7 +70,13 @@ const userPatchSchema = z.object({
   name: z.string().min(1).max(120).optional(),
   role: z.enum(ROLES).optional(),
   isActive: z.boolean().optional(),
-  slackUserId: z.string().max(40).nullable().optional(),
+  slackUserId: z
+    .union([
+      z.literal(null),
+      z.string().min(1).regex(/^[UWB][A-Z0-9]+$/, 'Slack ID must start with U, W, or B followed by uppercase letters and numbers').max(40),
+    ])
+    .nullable()
+    .optional(),
   clientIds: z.array(id).optional(), // full replacement of memberships when present
 })
 
