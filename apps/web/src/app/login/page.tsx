@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { LogoMark } from '@/components/icons'
 import { LoginForm } from './login-form'
 import { MotionFade } from './motion-fade'
 
@@ -30,12 +31,17 @@ export default function LoginPage() {
           <div className="relative z-10 flex h-full w-full flex-col justify-between p-10">
             <div>
               <div className="flex items-center gap-3">
-                <img src="/logo.png" alt="NEW SZN" className="h-10 w-auto" />
-                <span
-                  className="text-xl font-bold tracking-tight text-white"
-                >
-                  NEW SZN
-                </span>
+                <div className="relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-white/[0.03] border border-white/[0.06] shadow-[0_0_20px_rgba(0,0,0,0.4)]">
+                  <LogoMark className="h-6 w-auto drop-shadow-[0_0_8px_rgba(233,30,99,0.25)]" />
+                </div>
+                <div>
+                  <p className="text-[13px] font-bold tracking-[0.06em] uppercase text-white leading-none">
+                    NEW SZN<sup className="text-[8px] font-bold ml-px">®</sup>
+                  </p>
+                  <p className="mt-0.5 text-[9px] tracking-[0.16em] uppercase text-gray-600">
+                    Agency Performance
+                  </p>
+                </div>
               </div>
               <p className="mt-1 text-[10px] uppercase tracking-widest text-white/50">
                 Agency Performance
@@ -63,12 +69,17 @@ export default function LoginPage() {
             <div className="mx-auto w-full max-w-md space-y-8">
               {/* Mobile logo */}
               <div className="mb-8 flex items-center justify-center gap-2 lg:hidden">
-                <img src="/logo.png" alt="NEW SZN" className="h-8 w-auto" />
-                <span
-                  className="text-base font-bold tracking-tight text-white"
-                >
-                  NEW SZN
-                </span>
+                <div className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                  <LogoMark className="h-5 w-auto" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold tracking-[0.06em] uppercase text-white leading-none">
+                    NEW SZN<sup className="text-[7px] font-bold ml-px">®</sup>
+                  </p>
+                  <p className="text-[8px] tracking-[0.16em] uppercase text-gray-600">
+                    Agency Performance
+                  </p>
+                </div>
               </div>
 
               <div>
