@@ -15,6 +15,26 @@ const GRAPH_VERSION = process.env.META_GRAPH_VERSION ?? 'v21.0'
 const GRAPH_BASE = `https://graph.facebook.com/${GRAPH_VERSION}`
 const RETENTION_DAYS = 90
 
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  maxAttempts = 3,
+  initialDelayMs = 1000,
+): Promise<T> {
+  let lastError: Error | null = null
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn()
+    } catch (error) {
+      lastError = error as Error
+      if (attempt < maxAttempts) {
+        const delayMs = initialDelayMs * Math.pow(2, attempt - 1)
+        await new Promise(resolve => setTimeout(resolve, delayMs))
+      }
+    }
+  }
+  throw lastError || new Error('All retry attempts failed')
+}
+
 export interface SyncResult {
   clientId: string
   campaignsUpserted: number
@@ -109,6 +129,10 @@ function sumAction(insight: MetaInsight, types: string[]): number {
 
 // Sync one client's campaigns + daily/creative metrics for the trailing window.
 export async function syncAdCampaigns(clientId: string, windowDays = 30): Promise<SyncResult> {
+  return withRetry(() => syncAdCampaignsInternal(clientId, windowDays))
+}
+
+async function syncAdCampaignsInternal(clientId: string, windowDays = 30): Promise<SyncResult> {
   const client = await prisma.client.findUnique({
     where: { id: clientId },
     select: { id: true, currency: true, metaAdAccountId: true },
@@ -273,10 +297,12 @@ export async function syncAdCampaigns(clientId: string, windowDays = 30): Promis
 
 // Enforce the 90-day retention policy for a client's ad data.
 export async function pruneOldAdData(clientId: string): Promise<void> {
-  const cutoff = new Date()
-  cutoff.setDate(cutoff.getDate() - RETENTION_DAYS)
-  await Promise.all([
-    prisma.adDailyMetric.deleteMany({ where: { clientId, date: { lt: cutoff } } }),
-    prisma.adCreativeMetric.deleteMany({ where: { clientId, date: { lt: cutoff } } }),
-  ])
+  return withRetry(async () => {
+    const cutoff = new Date()
+    cutoff.setDate(cutoff.getDate() - RETENTION_DAYS)
+    await Promise.all([
+      prisma.adDailyMetric.deleteMany({ where: { clientId, date: { lt: cutoff } } }),
+      prisma.adCreativeMetric.deleteMany({ where: { clientId, date: { lt: cutoff } } }),
+    ])
+  })
 }

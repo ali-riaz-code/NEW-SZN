@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { SailIcon } from '@/components/icons'
+import Image from 'next/image'
 import { LoginForm } from './login-form'
 import { MotionFade } from './motion-fade'
 
@@ -30,10 +30,8 @@ export default function LoginPage() {
 
           <div className="relative z-10 flex h-full w-full flex-col justify-between p-10">
             <div>
-              <div className="flex items-center gap-2">
-                <div className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white/[0.03] border border-white/[0.06]">
-                  <div className="h-4 w-auto text-white">●</div>
-                </div>
+              <div className="flex items-center gap-3">
+                <Image src="/logo.png" alt="NEW SZN" width={40} height={40} className="h-10 w-auto" />
                 <span
                   className="text-xl font-bold tracking-tight text-white"
                 >
@@ -66,9 +64,7 @@ export default function LoginPage() {
             <div className="mx-auto w-full max-w-md space-y-8">
               {/* Mobile logo */}
               <div className="mb-8 flex items-center justify-center gap-2 lg:hidden">
-                <div className="relative flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-lg bg-white/[0.03] border border-white/[0.06]">
-                  <div className="h-3 w-auto text-white">●</div>
-                </div>
+                <Image src="/logo.png" alt="NEW SZN" width={32} height={32} className="h-8 w-auto" />
                 <span
                   className="text-base font-bold tracking-tight text-white"
                 >
