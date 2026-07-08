@@ -15,6 +15,7 @@
     "seed": "tsx packages/db/prisma/seed.ts"
   },
   "scripts": {
+    "postinstall": "prisma generate",
     "dev": "concurrently -n web,api -c blue,green \"npm:dev:web\" \"npm:dev:api\"",
     "dev:web": "npm run dev -w @new-szn/web",
     "dev:api": "npm run dev -w @new-szn/api",
