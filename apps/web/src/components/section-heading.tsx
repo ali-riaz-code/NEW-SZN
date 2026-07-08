@@ -9,8 +9,8 @@ export function SectionHeading({
 }) {
   return (
     <div className="flex items-center justify-between mb-4">
-      <h3 className="flex items-center gap-2 text-[10px] font-semibold tracking-widest uppercase text-gray-400">
-        <span className="h-3 w-[2px] rounded-full bg-gradient-to-b from-[#c9a96e] to-[#c9a96e]/20" />
+      <h3 className="flex items-center gap-2 text-[10px] font-semibold tracking-widest uppercase text-gray-300">
+        <span className="h-3 w-[2px] rounded-full bg-[#c9a96e]" />
         {children}
       </h3>
       {right}

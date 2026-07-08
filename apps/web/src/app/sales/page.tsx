@@ -90,9 +90,7 @@ function MetricCard({
 }) {
   const isUp = (trendPct ?? 0) >= 0
   return (
-    <div className="relative bg-gradient-to-br from-[#161616] to-[#0f0f0f] rounded-2xl p-5 flex flex-col min-h-[135px] border border-white/[0.06] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[#c9a96e]/[0.12] hover:shadow-[0_0_40px_rgba(0,0,0,0.6),0_0_0_1px_rgba(201,169,110,0.06)] cursor-default overflow-hidden">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c9a96e]/25 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#c9a96e]/[0.07] to-transparent pointer-events-none" />
+    <div className="relative bg-[#111111] rounded-2xl p-5 flex flex-col min-h-[135px] border border-white/[0.06] cursor-default overflow-hidden"">
       <span className="text-[10px] font-semibold tracking-widest uppercase text-gray-500">{label}</span>
       <div className="mt-auto pt-3">
         <p className="text-2xl font-bold text-white leading-none tracking-tight">
@@ -238,10 +236,8 @@ function ObjectionKpis({ data }: { data: SalesMetrics['objections'] }) {
         return (
           <div
             key={type}
-            className="relative bg-gradient-to-br from-[#161616] to-[#0f0f0f] rounded-2xl p-4 flex flex-col justify-between min-h-[96px] border border-white/[0.06] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[#c9a96e]/[0.12] hover:shadow-[0_0_40px_rgba(0,0,0,0.6),0_0_0_1px_rgba(201,169,110,0.06)] cursor-default overflow-hidden"
+            className="relative bg-[#111111] rounded-2xl p-4 flex flex-col justify-between min-h-[96px] border border-white/[0.06] cursor-default overflow-hidden"
           >
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c9a96e]/25 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#c9a96e]/[0.07] to-transparent pointer-events-none" />
             <span className="text-[10px] font-semibold tracking-widest uppercase text-gray-500">{label}</span>
             <div>
               <p className="text-2xl font-bold text-white leading-none tracking-tight">{count}</p>
@@ -299,9 +295,9 @@ export default async function SalesPage() {
         <h1 className="text-[10px] font-semibold tracking-widest uppercase text-gray-500">Sales &amp; Closing</h1>
       </div>
 
-      <div className={`grid grid-cols-1 ${!isAdmin ? 'lg:grid-cols-3' : ''} gap-4`}>
+      <div className={`grid grid-cols-1 ${!isAdmin ? 'md:grid-cols-2 lg:grid-cols-3' : ''} gap-4`}>
         {/* Left: metrics (blurred + locked overlay until first call of the day) */}
-        <div className={`${!isAdmin ? 'lg:col-span-2' : ''} relative`}>
+        <div className={`${!isAdmin ? 'md:col-span-1 lg:col-span-2' : ''} relative`}>
           <div className={locked ? 'pointer-events-none blur-md select-none' : ''}>
             {/* 12 KPI cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 stagger-children">
@@ -348,7 +344,7 @@ export default async function SalesPage() {
 
         {/* Right: Log Call form — closers only. Admins don't log calls on behalf. */}
         {!isAdmin && (
-          <div className="lg:col-span-1">
+          <div className="md:col-span-1">
             <LogCallForm clientId={data.clientId} />
           </div>
         )}

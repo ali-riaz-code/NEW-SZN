@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
-import { Plus_Jakarta_Sans } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import './globals.css'
 import { auth } from '@/auth'
 import { AppShell } from '@/components/app-nav'
 
-const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'] })
+const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
 
 export const metadata: Metadata = {
   title: 'NEW SZN',
@@ -18,7 +18,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const role = session?.user?.role as 'ADMIN' | 'CLOSER' | 'SETTER' | 'CLIENT' | undefined
 
   return (
-    <html lang="en" className={jakarta.className}>
+    <html lang="en" className={inter.className}>
       <body className="bg-[#0a0a0a]">
         {role ? (
           <AppShell

@@ -32,7 +32,7 @@ export function AiInsights({ dashboard, clientId }: { dashboard: Dashboard; clie
         <button
           onClick={handleClick}
           disabled={pending}
-          className="inline-flex items-center gap-2 bg-[#c9a96e] hover:bg-[#d4b57d] active:bg-[#b8975c] disabled:opacity-40 text-[#0a0a0a] text-xs font-semibold px-4 py-2 rounded-lg transition-all duration-150 ease-out hover:-translate-y-px hover:shadow-[0_4px_16px_rgba(201,169,110,0.35)] active:translate-y-0 active:shadow-none"
+          className="inline-flex items-center gap-2 bg-[#c9a96e] hover:bg-[#d4b57d] active:bg-[#b8975c] disabled:opacity-40 text-[#0a0a0a] text-xs font-semibold px-4 py-2 rounded-lg transition-colors duration-150"
         >
           {pending ? 'Analyzing…' : items ? 'Refresh' : 'Get AI Insights'}
         </button>

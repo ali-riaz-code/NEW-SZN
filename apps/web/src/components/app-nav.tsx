@@ -72,12 +72,12 @@ function NavLink({ href, label, Icon, active, onNavigate }: NavItem & { active: 
           : 'text-gray-500 hover:bg-white/[0.04] hover:text-gray-200'
       }`}
     >
-      {/* Left accent bar — dim on hover, glowing gold only when active */}
+      {/* Left accent bar — dim on hover, solid gold when active */}
       <span
         className={`absolute left-0 top-1/2 -translate-y-1/2 w-[2.5px] rounded-full transition-all duration-200 ease-out ${
           active
-            ? 'h-[20px] bg-gradient-to-b from-[#e4c98f] via-[#c9a96e] to-[#c9a96e] opacity-100 shadow-[0_0_6px_1px_rgba(201,169,110,0.60),0_0_14px_4px_rgba(201,169,110,0.28)]'
-            : 'h-[16px] bg-[#d2ac65]/50 opacity-0 group-hover:opacity-100'
+            ? 'h-[20px] bg-[#c9a96e] opacity-100'
+            : 'h-[16px] bg-[#c9a96e] opacity-0 group-hover:opacity-50'
         }`}
       />
       <span className={`flex-shrink-0 transition-colors duration-150 ${active ? 'text-[#c9a96e]' : 'text-current'}`}>
@@ -171,9 +171,7 @@ export function AppNav({
 
       {/* ── Bottom card ── */}
       <div className="p-3 pb-4">
-        <div className="relative overflow-hidden rounded-xl border border-[#c9a96e]/25 bg-gradient-to-br from-[#c9a96e]/[0.22] via-[#1c1608] to-[#0d0d0d] p-4">
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c9a96e]/50 to-transparent" />
-          <div className="absolute -top-10 -left-8 h-28 w-28 rounded-full bg-[#c9a96e]/25 blur-2xl" />
+        <div className="relative overflow-hidden rounded-xl border border-white/[0.05] bg-[#111111] p-4"">
           <div className="relative">
             <div className="mb-2.5 flex h-7 w-7 items-center justify-center rounded-md bg-black/25 border border-white/[0.08]">
               <LogoMark className="h-4 w-auto" />
@@ -227,7 +225,7 @@ export function AppHeader({
         >
           <MenuIcon size={16} />
         </button>
-        <div className="flex h-[34px] w-[34px] flex-shrink-0 items-center justify-center rounded-full bg-[#c9a96e]/15 text-[15px] font-bold text-[#c9a96e] leading-none border border-[#c9a96e]/20 shadow-[0_0_16px_rgba(201,169,110,0.15)]">
+        <div className="flex h-[34px] w-[34px] flex-shrink-0 items-center justify-center rounded-full bg-[#c9a96e]/15 text-[15px] font-bold text-[#c9a96e] leading-none border border-[#c9a96e]/20">
           {initials || '—'}
         </div>
         <div className="min-w-0">

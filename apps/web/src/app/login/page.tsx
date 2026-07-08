@@ -13,46 +13,12 @@ export default function LoginPage() {
     <div style={{ fontFamily: 'var(--font-body)' }}>
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
       />
       <style>{`
         #login-page {
-          --font-display: 'Instrument Serif', serif;
           --font-body: 'Inter', sans-serif;
         }
-        #login-page .liquid-glass {
-          background: rgba(255, 255, 255, 0.01);
-          background-blend-mode: luminosity;
-          backdrop-filter: blur(4px);
-          -webkit-backdrop-filter: blur(4px);
-          border: none;
-          box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
-          position: relative;
-          overflow: hidden;
-        }
-        #login-page .liquid-glass::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          border-radius: inherit;
-          padding: 1.4px;
-          background: linear-gradient(180deg,
-            rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%,
-            rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%,
-            rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
-          -webkit-mask: linear-gradient(#fff 0 0) content-box,
-            linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
-          pointer-events: none;
-        }
-        @keyframes fade-rise {
-          from { opacity: 0; transform: translateY(24px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        #login-page .animate-fade-rise { animation: fade-rise 0.8s ease-out both; }
-        #login-page .animate-fade-rise-delay { animation: fade-rise 0.8s ease-out 0.2s both; }
-        #login-page .animate-fade-rise-delay-2 { animation: fade-rise 0.8s ease-out 0.4s both; }
       `}</style>
 
       <div id="login-page" className="flex min-h-screen w-full bg-black">
@@ -65,10 +31,11 @@ export default function LoginPage() {
           <div className="relative z-10 flex h-full w-full flex-col justify-between p-10">
             <div>
               <div className="flex items-center gap-2">
-                <SailIcon size={20} />
+                <div className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white/[0.03] border border-white/[0.06]">
+                  <div className="h-4 w-auto text-white">●</div>
+                </div>
                 <span
-                  className="text-xl font-semibold tracking-tight text-white"
-                  style={{ fontFamily: 'var(--font-display)' }}
+                  className="text-xl font-bold tracking-tight text-white"
                 >
                   NEW SZN
                 </span>
@@ -80,12 +47,11 @@ export default function LoginPage() {
 
             <div className="space-y-6">
               <h2
-                className="animate-fade-rise text-5xl font-normal leading-[0.95] tracking-[-2px] text-white"
-                style={{ fontFamily: 'var(--font-display)' }}
+                className="text-4xl font-bold leading-[1.1] text-white"
               >
-                Where performance <em className="not-italic text-white/50">meets precision.</em>
+                Where performance <span className="text-white/60">meets precision.</span>
               </h2>
-              <p className="animate-fade-rise-delay max-w-xs text-sm leading-relaxed text-white/60">
+              <p className="max-w-xs text-sm leading-relaxed text-white/60">
                 Track your team. Close more deals. Grow faster.
               </p>
             </div>
@@ -94,17 +60,17 @@ export default function LoginPage() {
 
         {/* ── Right column — login form ── */}
         <div
-          className="flex flex-1 flex-col justify-center overflow-y-auto px-8 py-12 sm:px-12 lg:px-16 xl:px-20"
-          style={{ backgroundColor: 'hsl(201, 100%, 13%)' }}
+          className="flex flex-1 flex-col justify-center overflow-y-auto px-8 py-12 sm:px-12 lg:px-16 xl:px-20 bg-[#0a0a0a]"
         >
           <MotionFade>
             <div className="mx-auto w-full max-w-md space-y-8">
               {/* Mobile logo */}
               <div className="mb-8 flex items-center justify-center gap-2 lg:hidden">
-                <SailIcon size={18} />
+                <div className="relative flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-lg bg-white/[0.03] border border-white/[0.06]">
+                  <div className="h-3 w-auto text-white">●</div>
+                </div>
                 <span
-                  className="text-base font-semibold tracking-tight text-white"
-                  style={{ fontFamily: 'var(--font-display)' }}
+                  className="text-base font-bold tracking-tight text-white"
                 >
                   NEW SZN
                 </span>
@@ -112,8 +78,7 @@ export default function LoginPage() {
 
               <div>
                 <h1
-                  className="text-3xl font-normal tracking-tight text-white"
-                  style={{ fontFamily: 'var(--font-display)' }}
+                  className="text-3xl font-bold tracking-tight text-white"
                 >
                   Sign In
                 </h1>

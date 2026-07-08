@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { forgotPasswordAction } from './actions'
 
 const INPUT =
-  'w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-4 py-3 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-[#c9a96e]/50 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(201,169,110,0.08)] transition-all duration-150'
+  'w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-4 py-3 text-white text-sm placeholder:text-white/50 focus:outline-none focus:border-[#c9a96e]/50 focus:bg-white/[0.07] focus:ring-2 focus:ring-[#c9a96e]/20 transition-all duration-150'
 
 function SubmitButton() {
   const { pending } = useFormStatus()

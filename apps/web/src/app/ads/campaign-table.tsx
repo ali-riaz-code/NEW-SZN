@@ -241,22 +241,31 @@ export function CampaignTable({ rows, canFlag }: { rows: CampaignRow[]; canFlag:
         <table className="w-full text-sm">
           <thead>
             <tr className="text-[10px] uppercase tracking-wider text-gray-500 border-b border-gray-800">
-              <th
-                onClick={() => toggleSort('name')}
-                className="pb-2 font-medium cursor-pointer select-none hover:text-gray-300 text-left pr-3"
-              >
-                Campaign{sortKey === 'name' && <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>}
+              <th className="pb-2 font-medium text-left pr-3">
+                <button
+                  onClick={() => toggleSort('name')}
+                  className="cursor-pointer select-none hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#c9a96e]/50 rounded px-1"
+                  aria-sort={sortKey === 'name' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                >
+                  Campaign {sortKey === 'name' && <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>}
+                </button>
               </th>
               <th className="pb-2 font-medium text-left pr-3">Type</th>
               <th className="pb-2 font-medium text-left pr-3">Status</th>
               {visibleColumns.map((c) => (
-                <th
-                  key={c.id}
-                  onClick={() => c.sortKey && toggleSort(c.sortKey)}
-                  className={`pb-2 font-medium text-right ${c.sortKey ? 'cursor-pointer select-none hover:text-gray-300' : ''}`}
-                >
-                  {c.label}
-                  {c.sortKey && sortKey === c.sortKey && <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>}
+                <th key={c.id} className="pb-2 font-medium text-right">
+                  {c.sortKey ? (
+                    <button
+                      onClick={() => toggleSort(c.sortKey)}
+                      className="cursor-pointer select-none hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#c9a96e]/50 rounded px-1"
+                      aria-sort={sortKey === c.sortKey ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                    >
+                      {c.label}
+                      {sortKey === c.sortKey && <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>}
+                    </button>
+                  ) : (
+                    c.label
+                  )}
                 </th>
               ))}
               {canFlag && <th className="pb-2 text-right font-medium">Flag</th>}

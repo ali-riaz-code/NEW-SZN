@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { loginAction } from './actions'
 
 const INPUT =
-  'w-full bg-white/5 border border-white/10 rounded-xl h-11 px-4 text-white text-sm placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-white/20 transition-all duration-150'
+  'w-full bg-white/5 border border-white/10 rounded-xl h-11 px-4 text-white text-sm placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#c9a96e]/20 focus:border-[#c9a96e]/50 transition-all duration-150'
 
 const LABEL = 'block text-sm font-medium text-white/60 tracking-wide mb-1.5'
 
@@ -14,7 +14,7 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="liquid-glass animate-fade-rise-delay-2 rounded-xl w-full h-14 text-white font-medium text-base cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform duration-150 disabled:opacity-50"
+      className="w-full bg-[#c9a96e] hover:bg-[#d4b57d] active:bg-[#b8975c] disabled:opacity-50 text-black text-sm font-semibold py-3 rounded-lg transition-colors duration-150"
     >
       {pending ? 'Signing in…' : 'Sign In'}
     </button>
