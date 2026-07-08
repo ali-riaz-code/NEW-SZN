@@ -252,22 +252,25 @@ export function CampaignTable({ rows, canFlag }: { rows: CampaignRow[]; canFlag:
               </th>
               <th className="pb-2 font-medium text-left pr-3">Type</th>
               <th className="pb-2 font-medium text-left pr-3">Status</th>
-              {visibleColumns.map((c) => (
-                <th key={c.id} className="pb-2 font-medium text-right">
-                  {c.sortKey ? (
-                    <button
-                      onClick={() => toggleSort(c.sortKey)}
-                      className="cursor-pointer select-none hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#c9a96e]/50 rounded px-1"
-                      aria-sort={sortKey === c.sortKey ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
-                    >
-                      {c.label}
-                      {sortKey === c.sortKey && <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>}
-                    </button>
-                  ) : (
-                    c.label
-                  )}
-                </th>
-              ))}
+              {visibleColumns.map((c) => {
+                const sk = c.sortKey
+                return (
+                  <th key={c.id} className="pb-2 font-medium text-right">
+                    {sk ? (
+                      <button
+                        onClick={() => toggleSort(sk)}
+                        className="cursor-pointer select-none hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#c9a96e]/50 rounded px-1"
+                        aria-sort={sortKey === sk ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                      >
+                        {c.label}
+                        {sortKey === sk && <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>}
+                      </button>
+                    ) : (
+                      c.label
+                    )}
+                  </th>
+                )
+              })}
               {canFlag && <th className="pb-2 text-right font-medium">Flag</th>}
             </tr>
           </thead>
