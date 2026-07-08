@@ -5,97 +5,157 @@ import { MotionFade } from './motion-fade'
 
 export const metadata: Metadata = { title: 'Sign in — NEW SZN' }
 
-type Building = {
-  x: number
-  width: number
-  top: number
-  fill: string
-  windowFill: string
-  windowOpacity: number
-}
-
-const GROUND_Y = 600
-
-const BUILDINGS: Building[] = [
-  { x: 8, width: 66, top: 350, fill: '#191919', windowFill: '#ffffff', windowOpacity: 0.05 },
-  { x: 82, width: 70, top: 265, fill: '#232323', windowFill: '#ffffff', windowOpacity: 0.06 },
-  { x: 160, width: 90, top: 120, fill: '#c9a96e', windowFill: '#0a0a0a', windowOpacity: 0.55 },
-  { x: 258, width: 62, top: 300, fill: '#1c1c1c', windowFill: '#ffffff', windowOpacity: 0.05 },
-  { x: 328, width: 80, top: 195, fill: '#282828', windowFill: '#ffffff', windowOpacity: 0.06 },
-  { x: 416, width: 68, top: 375, fill: '#1c1c1c', windowFill: '#ffffff', windowOpacity: 0.05 },
-]
-
-function buildingWindows(b: Building) {
-  const marginX = 11
-  const cols = Math.max(1, Math.floor((b.width - marginX * 2) / 15))
-  const marginTop = 22
-  const marginBottom = 26
-  const rows = Math.max(1, Math.floor((GROUND_Y - b.top - marginTop - marginBottom) / 21))
-  const items: React.ReactNode[] = []
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const wx = b.x + marginX + c * 15
-      const wy = b.top + marginTop + r * 21
-      items.push(
-        <rect
-          key={`${b.x}-${r}-${c}`}
-          x={wx}
-          y={wy}
-          width={5}
-          height={11}
-          fill={b.windowFill}
-          opacity={b.windowOpacity}
-        />,
-      )
-    }
-  }
-  return items
-}
-
-function QuoteMark() {
-  return (
-    <svg width="34" height="26" viewBox="0 0 34 26" fill="none" aria-hidden="true">
-      <path
-        d="M4 26V15.2C4 8.8 7.4 3.7 14.2 0L16.8 3.4C12.1 6.4 10 9.4 10 13.2H15.2V26H4Z"
-        fill="#c9a96e"
-        opacity="0.55"
-      />
-      <path
-        d="M19 26V15.2C19 8.8 22.4 3.7 29.2 0L31.8 3.4C27.1 6.4 25 9.4 25 13.2H30.2V26H19Z"
-        fill="#c9a96e"
-        opacity="0.55"
-      />
-    </svg>
-  )
-}
-
+/*
+ * Line-art skyline in the reference illustration's language: stroked outlines,
+ * diagonal hatching, dashed window columns, stepped rooflines, slight
+ * perspective side faces, and outlined round trees in front. Bottom-anchored
+ * so the buildings bleed off the panel edge.
+ */
 function BuildingIllustration() {
   return (
     <svg
-      viewBox="0 0 500 600"
+      viewBox="0 0 800 950"
       className="absolute inset-0 h-full w-full"
-      preserveAspectRatio="xMidYMid slice"
+      preserveAspectRatio="xMidYMax slice"
       aria-hidden="true"
     >
-      {BUILDINGS.map((b) => {
-        const height = GROUND_Y - b.top
-        return (
-          <g key={b.x}>
-            <rect x={b.x} y={b.top} width={b.width} height={height} fill={b.fill} />
-            <rect x={b.x} y={b.top} width={b.width} height={3} fill="#ffffff" opacity={0.08} />
-            {buildingWindows(b)}
-          </g>
-        )
-      })}
+      <defs>
+        <pattern
+          id="hatch-a"
+          patternUnits="userSpaceOnUse"
+          width="11"
+          height="11"
+          patternTransform="rotate(45)"
+        >
+          <line x1="0" y1="0" x2="0" y2="11" stroke="#2c2c2c" strokeWidth="1.5" />
+        </pattern>
+        <pattern
+          id="hatch-b"
+          patternUnits="userSpaceOnUse"
+          width="14"
+          height="14"
+          patternTransform="rotate(-45)"
+        >
+          <line x1="0" y1="0" x2="0" y2="14" stroke="#262626" strokeWidth="1.5" />
+        </pattern>
+      </defs>
 
-      {/* Ground-level trees */}
+      {/* Far left — leaning tower, diagonal hatch */}
+      <path
+        d="M40 950 L64 470 L158 478 L158 950"
+        fill="url(#hatch-a)"
+        stroke="#333333"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+
+      {/* Hero tower — gold outline, stepped parapet, dashed window columns */}
       <g>
-        <line x1="60" y1="580" x2="60" y2="600" stroke="#333333" strokeWidth="2" />
-        <circle cx="60" cy="572" r="10" fill="#c9a96e" fillOpacity="0.18" stroke="#c9a96e" strokeWidth="1.25" strokeOpacity="0.4" />
-        <line x1="392" y1="586" x2="392" y2="600" stroke="#333333" strokeWidth="2" />
-        <circle cx="392" cy="578" r="8" fill="#c9a96e" fillOpacity="0.18" stroke="#c9a96e" strokeWidth="1.25" strokeOpacity="0.4" />
-        <line x1="480" y1="583" x2="480" y2="600" stroke="#333333" strokeWidth="2" />
-        <circle cx="480" cy="575" r="9" fill="#c9a96e" fillOpacity="0.18" stroke="#c9a96e" strokeWidth="1.25" strokeOpacity="0.4" />
+        <path
+          d="M180 950 L180 250 L200 250 L200 228 L280 228 L280 250 L300 250 L300 950"
+          fill="#c9a96e"
+          fillOpacity="0.05"
+          stroke="#c9a96e"
+          strokeWidth="2.5"
+          strokeLinejoin="round"
+        />
+        {[204, 228, 252, 276].map((x) => (
+          <line
+            key={x}
+            x1={x}
+            y1={272}
+            x2={x}
+            y2={940}
+            stroke="#c9a96e"
+            strokeWidth="2"
+            strokeDasharray="12 9"
+            opacity="0.7"
+          />
+        ))}
+      </g>
+
+      {/* Mid tower with perspective side face */}
+      <g>
+        <path
+          d="M320 950 L320 430 L410 430 L410 950"
+          fill="#ffffff"
+          fillOpacity="0.02"
+          stroke="#3a3a3a"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M410 950 L410 430 L434 442 L434 950"
+          fill="url(#hatch-b)"
+          stroke="#3a3a3a"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+        {[338, 362, 386].map((x) => (
+          <line
+            key={x}
+            x1={x}
+            y1={452}
+            x2={x}
+            y2={940}
+            stroke="#3f3f3f"
+            strokeWidth="2"
+            strokeDasharray="9 8"
+          />
+        ))}
+      </g>
+
+      {/* Short front building — stepped parapet, diagonal hatch */}
+      <path
+        d="M430 950 L430 620 L446 620 L446 606 L524 606 L524 620 L540 620 L540 950"
+        fill="url(#hatch-a)"
+        stroke="#383838"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+
+      {/* Tall right tower with side face */}
+      <g>
+        <path
+          d="M560 950 L560 310 L690 310 L690 950"
+          fill="url(#hatch-a)"
+          stroke="#3f3f3f"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M690 950 L690 310 L716 324 L716 950"
+          fill="url(#hatch-b)"
+          stroke="#3f3f3f"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+      </g>
+
+      {/* Edge building, cropped by right edge */}
+      <path
+        d="M730 950 L730 520 L800 520"
+        fill="url(#hatch-b)"
+        stroke="#2e2e2e"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+
+      {/* Trees — outlined canopies with trunks, drawn in front of the buildings */}
+      <g fill="none" stroke="#3f3f3f" strokeWidth="2" strokeLinecap="round">
+        <line x1="350" y1="950" x2="350" y2="905" />
+        <line x1="350" y1="905" x2="340" y2="888" />
+        <line x1="350" y1="898" x2="360" y2="882" />
+        <circle cx="350" cy="878" r="30" />
+        <line x1="555" y1="950" x2="555" y2="922" />
+        <circle cx="555" cy="899" r="22" />
+        <line x1="745" y1="950" x2="745" y2="916" />
+        <line x1="745" y1="916" x2="734" y2="898" />
+        <circle cx="745" cy="882" r="34" />
+      </g>
+      <g fill="none" stroke="#c9a96e" strokeWidth="2" strokeLinecap="round" opacity="0.5">
+        <line x1="160" y1="950" x2="160" y2="923" />
+        <circle cx="160" cy="905" r="18" />
       </g>
     </svg>
   )
@@ -153,14 +213,9 @@ export default function LoginPage() {
         {/* ── Right column — slogan + illustration ── */}
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#111111]">
           <BuildingIllustration />
-          <div className="relative z-10 flex flex-col px-16 pt-24 max-w-lg">
-            <QuoteMark />
-            <p className="mt-6 text-2xl font-semibold leading-snug text-white/90">
-              The moment you sign in, you know exactly where you stand.{' '}
-              <span className="font-normal text-white/50">No hunting. No ambiguity — just the score.</span>
-            </p>
-            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.14em] text-[#c9a96e]">
-              — The Scoreboard
+          <div className="relative z-10 px-16 pt-24">
+            <p className="text-3xl font-semibold tracking-tight text-white/90">
+              Know exactly where you stand.
             </p>
           </div>
         </div>
