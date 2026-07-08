@@ -4,9 +4,9 @@ import Link from 'next/link'
 import { loginAction } from './actions'
 
 const INPUT =
-  'w-full bg-white/5 border border-white/10 rounded-xl h-11 px-4 text-white text-sm placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#c9a96e]/20 focus:border-[#c9a96e]/50 transition-all duration-150'
+  'w-full bg-white/5 border border-white/10 rounded-xl h-11 px-4 text-white text-sm placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#c9a96e]/40 focus:border-[#c9a96e]/80 transition-all duration-150'
 
-const LABEL = 'block text-sm font-medium text-white/60 tracking-wide mb-1.5'
+const LABEL = 'block text-sm font-medium text-white/60 tracking-wide'
 
 function SubmitButton() {
   const { pending } = useFormStatus()
@@ -27,7 +27,7 @@ export function LoginForm() {
   return (
     <form action={formAction} className="space-y-4">
       <div>
-        <label htmlFor="email" className={LABEL}>
+        <label htmlFor="email" className={`${LABEL} mb-1.5`}>
           Email
         </label>
         <input
@@ -42,9 +42,17 @@ export function LoginForm() {
       </div>
 
       <div>
-        <label htmlFor="password" className={LABEL}>
-          Password
-        </label>
+        <div className="mb-1.5 flex items-center justify-between">
+          <label htmlFor="password" className={LABEL}>
+            Password
+          </label>
+          <Link
+            href="/auth/forgot-password"
+            className="text-xs text-white/60 hover:text-white/80 transition-colors duration-150"
+          >
+            Forgot password?
+          </Link>
+        </div>
         <input
           id="password"
           name="password"
@@ -59,15 +67,6 @@ export function LoginForm() {
       {state?.error && (
         <p className="text-red-400/80 text-xs pt-0.5">{state.error}</p>
       )}
-
-      <div className="flex justify-end">
-        <Link
-          href="/auth/forgot-password"
-          className="text-xs text-white/40 hover:text-white/60 transition-colors duration-150"
-        >
-          Forgot your password?
-        </Link>
-      </div>
 
       <SubmitButton />
     </form>
