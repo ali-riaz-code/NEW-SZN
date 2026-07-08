@@ -35,7 +35,10 @@ function Badge({ type }: { type: 'DAILY' | 'WEEKLY' | 'MONTHLY' }) {
   )
 }
 
-export function AiReports({ clients }: { clients: ClientOption[] }) {
+// isAdmin=false renders the CLIENT view: a clean, read-only archive of the
+// reports generated for their business — no "Generate Now", no scheduling,
+// no client filter. The API additionally enforces the client scoping.
+export function AiReports({ clients, isAdmin }: { clients: ClientOption[]; isAdmin: boolean }) {
   const firstId = clients[0]?.id ?? ''
 
   // ── History state — defined first so handleGenerate can reference loadHistory ─
@@ -144,7 +147,9 @@ export function AiReports({ clients }: { clients: ClientOption[] }) {
   return (
     <div className="space-y-4">
 
-      {/* ── Schedule & Generate card ──────────────────────────────────────── */}
+      {/* ── Schedule & Generate card — admin only. Clients never see
+             generation or scheduling controls. ──────────────────────────── */}
+      {isAdmin && (
       <div className="bg-[#111111] rounded-2xl p-5">
         <div className="flex flex-wrap items-center gap-3 mb-5">
           <h2 className="text-[11px] font-semibold tracking-widest uppercase text-gray-500 flex-1">
@@ -241,6 +246,7 @@ export function AiReports({ clients }: { clients: ClientOption[] }) {
           </p>
         </div>
       </div>
+      )}
 
       {/* ── Report Archive card ───────────────────────────────────────────── */}
       <div className="bg-[#111111] rounded-2xl p-5">
@@ -248,19 +254,22 @@ export function AiReports({ clients }: { clients: ClientOption[] }) {
           Report Archive
         </h2>
 
-        {/* Filters */}
+        {/* Filters — the client dropdown is admin-only; clients are always
+            server-scoped to their own reports. */}
         <div className="flex flex-wrap gap-2 mb-4">
-          <select
-            value={histClientId}
-            onChange={(e) => { setHistClientId(e.target.value); setHistPage(1) }}
-            style={{ colorScheme: 'dark' }}
-            className="bg-[#1a1a1a] border border-white/[0.08] rounded-lg px-2 py-1.5 text-white text-xs focus:outline-none focus:border-[#c9a96e]/40"
-          >
-            <option value="">All clients</option>
-            {clients.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
+          {isAdmin && (
+            <select
+              value={histClientId}
+              onChange={(e) => { setHistClientId(e.target.value); setHistPage(1) }}
+              style={{ colorScheme: 'dark' }}
+              className="bg-[#1a1a1a] border border-white/[0.08] rounded-lg px-2 py-1.5 text-white text-xs focus:outline-none focus:border-[#c9a96e]/40"
+            >
+              <option value="">All clients</option>
+              {clients.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          )}
           <select
             value={histType}
             onChange={(e) => { setHistType(e.target.value); setHistPage(1) }}
@@ -304,29 +313,31 @@ export function AiReports({ clients }: { clients: ClientOption[] }) {
             <thead>
               <tr className="text-[10px] uppercase tracking-wider text-gray-500 border-b border-gray-800">
                 <th className="pb-2 text-left font-medium">Type</th>
-                <th className="pb-2 text-left font-medium pl-4">Client</th>
+                {isAdmin && <th className="pb-2 text-left font-medium pl-4">Client</th>}
                 <th className="pb-2 text-left font-medium pl-4">Period</th>
                 <th className="pb-2 text-left font-medium pl-4">Generated</th>
-                <th className="pb-2 text-left font-medium pl-4">By</th>
+                {isAdmin && <th className="pb-2 text-left font-medium pl-4">By</th>}
                 <th className="pb-2 text-right font-medium">Download</th>
               </tr>
             </thead>
             <tbody>
               {histLoading ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-gray-700 text-xs">Loading…</td>
+                  <td colSpan={isAdmin ? 6 : 4} className="py-8 text-center text-gray-700 text-xs">Loading…</td>
                 </tr>
               ) : rows.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-gray-700 text-xs">
-                    No reports found. Use "Generate now" above to create the first one.
+                  <td colSpan={isAdmin ? 6 : 4} className="py-8 text-center text-gray-700 text-xs">
+                    {isAdmin
+                      ? 'No reports found. Use "Generate now" above to create the first one.'
+                      : 'No reports yet. Reports generated for your business will appear here.'}
                   </td>
                 </tr>
               ) : (
                 rows.map((r) => (
                   <tr key={r.id} className="border-b border-gray-800/40 last:border-0">
                     <td className="py-2.5"><Badge type={r.type} /></td>
-                    <td className="py-2.5 text-gray-300 pl-4">{r.clientName}</td>
+                    {isAdmin && <td className="py-2.5 text-gray-300 pl-4">{r.clientName}</td>}
                     <td className="py-2.5 text-gray-500 pl-4 whitespace-nowrap text-xs">
                       {r.periodStart} → {r.periodEnd}
                     </td>
@@ -339,7 +350,7 @@ export function AiReports({ clients }: { clients: ClientOption[] }) {
                         minute: '2-digit',
                       })}
                     </td>
-                    <td className="py-2.5 text-gray-500 pl-4 text-xs">{r.generatedBy}</td>
+                    {isAdmin && <td className="py-2.5 text-gray-500 pl-4 text-xs">{r.generatedBy}</td>}
                     <td className="py-2.5 text-right">
                       <a
                         href={`/api/reports/${r.id}/download`}

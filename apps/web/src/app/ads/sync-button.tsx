@@ -9,6 +9,24 @@ function fmt(ms: number): string {
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
+// Read-only replacement for the Sync button on the CLIENT view: clients must
+// not be able to trigger backend syncs (rate limits), so they only see when
+// the data was last refreshed. Rendered after mount to avoid the same
+// server/browser locale hydration mismatch the button works around below.
+export function LastUpdatedLabel({ lastSuccessAt }: { lastSuccessAt: string | null }) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted || !lastSuccessAt) return null
+  return (
+    <span className="text-[11px] text-gray-500 whitespace-nowrap">
+      Last updated: {new Date(lastSuccessAt).toLocaleString()}
+    </span>
+  )
+}
+
 export function SyncButton({
   initialCooldownMs,
   isAdmin,

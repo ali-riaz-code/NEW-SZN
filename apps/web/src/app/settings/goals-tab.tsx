@@ -93,8 +93,8 @@ export function GoalsTab({
         {loading ? (
           <p className="text-xs text-gray-600 py-4">Loading…</p>
         ) : (
-          <div className="space-y-2">
-            <div className="grid grid-cols-[1fr_120px_80px_80px_auto] gap-2 text-[10px] uppercase tracking-wider text-gray-500 px-1">
+          <div className="space-y-2 overflow-x-auto">
+            <div className="min-w-[520px] grid grid-cols-[1fr_120px_80px_80px_auto] gap-2 text-[10px] uppercase tracking-wider text-gray-500 px-1">
               <span>KPI</span>
               <span>Target {client ? `(${client.currency})` : ''}</span>
               <span>Green ≥</span>
@@ -142,7 +142,7 @@ function GoalRowEditor({
   const [amber, setAmber] = useState(existing?.amberPct ?? 50)
 
   return (
-    <div className="grid grid-cols-[1fr_120px_80px_80px_auto] gap-2 items-center">
+    <div className="min-w-[520px] grid grid-cols-[1fr_120px_80px_80px_auto] gap-2 items-center">
       <span className="text-sm text-gray-300">{kpi.label}</span>
       <input className={input} value={target} onChange={(e) => setTarget(e.target.value)} placeholder="—" />
       <input

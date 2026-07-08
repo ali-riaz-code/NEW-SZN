@@ -3,7 +3,7 @@ import { auth } from '@/auth'
 import { apiGet } from '@/lib/api'
 import { formatMoney, formatCount, formatPct, formatMultiplier } from '@/lib/format'
 import { Sparkline } from '@/components/sparkline'
-import { SyncButton } from './sync-button'
+import { SyncButton, LastUpdatedLabel } from './sync-button'
 import { CampaignTable, type CampaignRow } from './campaign-table'
 import { DailySpendChart } from './daily-spend-chart'
 import { ClientSelector } from './client-selector'
@@ -140,21 +140,26 @@ export default async function AdsPage({ searchParams }: { searchParams: { client
 
   return (
     <main className="min-h-screen text-white p-6 md:p-8 animate-fade">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-4">
           <h1 className="text-[10px] font-semibold tracking-widest uppercase text-gray-500">Ads</h1>
           {role === 'ADMIN' && clients.length > 1 && resolvedClientId && (
             <ClientSelector clients={clients} currentClientId={resolvedClientId} />
           )}
         </div>
-        {status && (
+        {/* Sync is admin-only. Clients never see the button (no manual API
+            triggers / rate-limit risk) — just a read-only freshness label. */}
+        {status && role === 'ADMIN' && (
           <SyncButton
             initialCooldownMs={status.cooldownRemainingMs}
-            isAdmin={role === 'ADMIN'}
+            isAdmin
             cooldownMs={status.cooldownMs ?? 15 * 60 * 1000}
             lastSuccessAt={status.lastSuccessAt}
             clientId={resolvedClientId}
           />
+        )}
+        {status && role !== 'ADMIN' && (
+          <LastUpdatedLabel lastSuccessAt={status.lastSuccessAt} />
         )}
       </div>
 

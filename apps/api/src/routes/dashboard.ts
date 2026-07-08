@@ -133,9 +133,12 @@ function resolveAdMonth(
   return best ? new Date(best.y, best.m, 15) : null
 }
 
+// Closers and setters have no Master Dashboard — their home screens are
+// /sales and /setter. Keeping them off this route guarantees they can never
+// pull agency-wide macro metrics (revenue, cash, ad spend, ROAS).
 router.get(
   '/master',
-  requireRole(['ADMIN', 'CLOSER', 'SETTER', 'CLIENT']),
+  requireRole(['ADMIN', 'CLIENT']),
   async (req, res, next) => {
     try {
       const parsed = querySchema.safeParse(req.query)
@@ -795,6 +798,71 @@ router.get(
         revenueTrend,
         dealsTrend,
       })
+    } catch (error) {
+      next(error)
+    }
+  },
+)
+
+// ─── GET /api/dashboard/leaderboard — global closer leaderboard ─────────────────
+// Deliberately NOT closer-scoped: closers see the whole team's ranking for
+// competitive motivation (the one exception to closer data isolation). Same
+// all-time roster + USD normalization as the aggregate Master leaderboard.
+router.get(
+  '/leaderboard',
+  requireRole(['ADMIN', 'CLOSER']),
+  async (_req, res, next) => {
+    try {
+      const activeClients = await prisma.client.findMany({
+        where: { isActive: true },
+        select: { id: true },
+      })
+      if (activeClients.length === 0) return res.json({ leaderboard: [] })
+
+      const [allCalls, rates] = await Promise.all([
+        prisma.call.findMany({
+          where: { clientId: { in: activeClients.map((c) => c.id) }, deletedAt: null },
+          select: {
+            outcome: true,
+            revenueMinor: true,
+            currency: true,
+            closerId: true,
+            closer: { select: { id: true, name: true } },
+          },
+        }),
+        getLatestRates('USD'),
+      ])
+
+      const toUsdMinor = (amountMinor: number, from: string) =>
+        Math.round(convertToDisplay(amountMinor, from, 'USD', rates) * 100)
+
+      const closerMap = new Map<string, { name: string; rev: number; outcomes: string[] }>()
+      for (const call of allCalls) {
+        if (!closerMap.has(call.closerId)) {
+          closerMap.set(call.closerId, { name: call.closer.name, rev: 0, outcomes: [] })
+        }
+        const row = closerMap.get(call.closerId)!
+        if (isWonOutcome(call.outcome)) row.rev += toUsdMinor(call.revenueMinor, call.currency)
+        row.outcomes.push(call.outcome)
+      }
+      const leaderboard = [...closerMap.entries()]
+        .map(([closerId, { name, rev, outcomes }]) => {
+          const agg = aggregateOutcomes(outcomes as Parameters<typeof aggregateOutcomes>[0])
+          return {
+            closerId,
+            name,
+            calls: agg.conducted,
+            deals: agg.closed,
+            closeRate: Math.round(closeRate(agg.closed, agg.conducted) * 1000) / 10,
+            showUpRate: Math.round(showUpRate(agg.conducted, agg.onCalendar) * 1000) / 10,
+            revenueMinor: rev,
+            currency: 'USD',
+          }
+        })
+        .filter((r) => r.calls > 0)
+        .sort((a, b) => b.revenueMinor - a.revenueMinor)
+
+      return res.json({ leaderboard })
     } catch (error) {
       next(error)
     }

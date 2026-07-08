@@ -8,6 +8,7 @@ import { LogCallForm } from './log-call-form'
 import { AiInsights } from '@/components/ai-insights'
 import { NextBestAction } from '@/components/next-best-action'
 import { FollowUpList, type FollowUpRow } from '@/app/follow-ups/follow-up-list'
+import { Leaderboard, type LeaderboardRow } from '@/components/leaderboard'
 import { TodayCallLogTable, type TodayCallRow } from './call-log-table'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -268,9 +269,14 @@ export default async function SalesPage() {
   if (role !== 'CLOSER' && role !== 'ADMIN') redirect('/')
   const isAdmin = role === 'ADMIN'
 
-  const [data, followUpsData] = await Promise.all([
+  const [data, followUpsData, leaderboardData] = await Promise.all([
     apiGet<SalesMetrics>('/api/sales/metrics').catch(() => null),
     apiGet<FollowUpsResp>('/api/follow-ups').catch(() => null),
+    // Closer-only: the team leaderboard stays GLOBAL (not isolated to the
+    // logged-in closer) so they can see their rank — competitive motivation.
+    !isAdmin
+      ? apiGet<{ leaderboard: LeaderboardRow[] }>('/api/dashboard/leaderboard').catch(() => null)
+      : Promise.resolve(null),
   ])
 
   if (!data || data.empty) {
@@ -347,6 +353,18 @@ export default async function SalesPage() {
           </div>
         )}
       </div>
+
+      {/* ── Top Performers — closers see the GLOBAL team ranking (exception
+             to closer data isolation, for competitive motivation) ─────────── */}
+      {!isAdmin && leaderboardData && leaderboardData.leaderboard.length > 0 && (
+        <div className="mt-4">
+          <Leaderboard
+            rows={leaderboardData.leaderboard}
+            title="Top Performers — Team Leaderboard"
+            highlightCloserId={session.user.userId}
+          />
+        </div>
+      )}
 
       {/* ── AI Insights ─────────────────────────────────────────────────── */}
       <div className="mt-4">

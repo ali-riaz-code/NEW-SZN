@@ -221,6 +221,25 @@ export function InfoIcon({ size = 16 }: { size?: number }) {
   )
 }
 
+export function MenuIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="2" y1="4" x2="14" y2="4"/>
+      <line x1="2" y1="8" x2="14" y2="8"/>
+      <line x1="2" y1="12" x2="14" y2="12"/>
+    </svg>
+  )
+}
+
+export function CloseIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden="true" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="3.5" y1="3.5" x2="12.5" y2="12.5"/>
+      <line x1="12.5" y1="3.5" x2="3.5" y2="12.5"/>
+    </svg>
+  )
+}
+
 export function SailIcon({ size = 28 }: { size?: number }) {
   return (
     <svg

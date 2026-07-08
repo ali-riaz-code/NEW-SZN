@@ -1,7 +1,8 @@
-// Reports API (Phase 11) — admin only.
-//   POST /api/reports/generate  → generate a report now (daily/weekly/monthly)
-//   GET  /api/reports           → searchable/filterable history (paginated)
-//   GET  /api/reports/:id/download → stream the stored PDF (authed)
+// Reports API (Phase 11).
+//   POST /api/reports/generate  → generate a report now (daily/weekly/monthly) — ADMIN
+//   GET  /api/reports           → searchable/filterable history (paginated) — ADMIN + CLIENT (own client only)
+//   GET  /api/reports/:id/download → stream the stored PDF (authed) — ADMIN + CLIENT (own client only)
+//   GET/PATCH /api/reports/schedule → auto-generation cadence — ADMIN
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -13,7 +14,16 @@ import { generateReport } from '../integrations/reports'
 import { storage } from '../integrations/storage'
 
 const router = Router()
-router.use(requireRole(['ADMIN']))
+
+// Client IDs the caller may see reports for. CLIENT users are hard-limited to
+// their memberships regardless of what clientId the query asks for.
+async function memberClientIds(userId: string): Promise<string[]> {
+  const mems = await prisma.membership.findMany({
+    where: { userId },
+    select: { clientId: true },
+  })
+  return mems.map((m) => m.clientId)
+}
 
 const generateSchema = z.object({
   clientId: id,
@@ -21,7 +31,7 @@ const generateSchema = z.object({
 })
 
 // POST /api/reports/generate — "Generate Now".
-router.post('/generate', async (req, res, next) => {
+router.post('/generate', requireRole(['ADMIN']), async (req, res, next) => {
   try {
     const parsed = generateSchema.safeParse(req.body)
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() })
@@ -51,14 +61,25 @@ const listSchema = z.object({
 })
 
 // GET /api/reports — history, filterable by client/type/date, paginated.
-router.get('/', async (req, res, next) => {
+// CLIENT callers only ever see reports generated for their own client(s).
+router.get('/', requireRole(['ADMIN', 'CLIENT']), async (req, res, next) => {
   try {
     const parsed = listSchema.safeParse(req.query)
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() })
     const q = parsed.data
+    const { userId, role } = req.user!
 
     const where: Prisma.ReportWhereInput = {}
-    if (q.clientId) where.clientId = q.clientId
+    if (role === 'CLIENT') {
+      const ownIds = await memberClientIds(userId)
+      if (ownIds.length === 0)
+        return res.json({ rows: [], total: 0, page: q.page, pageSize: q.pageSize })
+      // A requested clientId is honored only if it belongs to the caller.
+      where.clientId =
+        q.clientId && ownIds.includes(q.clientId) ? q.clientId : { in: ownIds }
+    } else if (q.clientId) {
+      where.clientId = q.clientId
+    }
     if (q.type) where.type = q.type as ReportType
     if (q.from || q.to) {
       const f: { gte?: Date; lte?: Date } = {}
@@ -115,7 +136,7 @@ const scheduleBodySchema = z.object({
 })
 
 // GET /api/reports/schedule?clientId=xxx — current auto-generation cadence.
-router.get('/schedule', async (req, res, next) => {
+router.get('/schedule', requireRole(['ADMIN']), async (req, res, next) => {
   try {
     const parsed = scheduleQuerySchema.safeParse(req.query)
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() })
@@ -131,7 +152,7 @@ router.get('/schedule', async (req, res, next) => {
 })
 
 // PATCH /api/reports/schedule — set or clear the auto-generation cadence.
-router.patch('/schedule', async (req, res, next) => {
+router.patch('/schedule', requireRole(['ADMIN']), async (req, res, next) => {
   try {
     const parsed = scheduleBodySchema.safeParse(req.body)
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() })
@@ -151,16 +172,26 @@ router.patch('/schedule', async (req, res, next) => {
 })
 
 // GET /api/reports/:id/download — stream the stored PDF.
-router.get('/:id/download', async (req, res, next) => {
+// CLIENT callers may only download reports belonging to their own client(s).
+router.get('/:id/download', requireRole(['ADMIN', 'CLIENT']), async (req, res, next) => {
   try {
     const rid = id.safeParse(req.params.id)
     if (!rid.success) return res.status(400).json({ error: rid.error.flatten() })
+    const { userId, role } = req.user!
 
     const report = await prisma.report.findUnique({
       where: { id: rid.data },
-      select: { s3Key: true, type: true, client: { select: { name: true } }, periodEnd: true },
+      select: { s3Key: true, type: true, clientId: true, client: { select: { name: true } }, periodEnd: true },
     })
     if (!report) return res.status(404).json({ error: 'Report not found.' })
+
+    if (role === 'CLIENT') {
+      const ownIds = await memberClientIds(userId)
+      // 404 (not 403) so clients can't probe which report IDs exist.
+      if (!ownIds.includes(report.clientId)) {
+        return res.status(404).json({ error: 'Report not found.' })
+      }
+    }
 
     let body: Buffer
     try {

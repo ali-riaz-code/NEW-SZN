@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
 import { auth } from '@/auth'
-import { AppNav, AppHeader } from '@/components/app-nav'
+import { AppShell } from '@/components/app-nav'
 
 const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'] })
 
@@ -20,17 +20,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={jakarta.className}>
       <body className="bg-[#0a0a0a]">
-        {role && (
-          <>
-            <AppNav role={role} />
-            <AppHeader
-              role={role}
-              userName={session?.user?.name ?? undefined}
-              email={session?.user?.email ?? undefined}
-            />
-          </>
+        {role ? (
+          <AppShell
+            role={role}
+            userName={session?.user?.name ?? undefined}
+            email={session?.user?.email ?? undefined}
+          >
+            {children}
+          </AppShell>
+        ) : (
+          children
         )}
-        <div className={role ? 'ml-60 pt-[73px]' : ''}>{children}</div>
       </body>
     </html>
   )
