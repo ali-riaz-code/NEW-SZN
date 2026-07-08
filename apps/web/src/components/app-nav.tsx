@@ -171,7 +171,7 @@ export function AppNav({
 
       {/* ── Bottom card ── */}
       <div className="p-3 pb-4">
-        <div className="relative overflow-hidden rounded-xl border border-white/[0.05] bg-[#111111] p-4"">
+        <div className="relative overflow-hidden rounded-xl border border-white/[0.05] bg-[#111111] p-4">
           <div className="relative">
             <div className="mb-2.5 flex h-7 w-7 items-center justify-center rounded-md bg-black/25 border border-white/[0.08]">
               <LogoMark className="h-4 w-auto" />

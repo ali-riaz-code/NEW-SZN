@@ -90,7 +90,7 @@ function MetricCard({
 }) {
   const isUp = (trendPct ?? 0) >= 0
   return (
-    <div className="relative bg-[#111111] rounded-2xl p-5 flex flex-col min-h-[135px] border border-white/[0.06] cursor-default overflow-hidden"">
+    <div className="relative bg-[#111111] rounded-2xl p-5 flex flex-col min-h-[135px] border border-white/[0.06] cursor-default overflow-hidden">
       <span className="text-[10px] font-semibold tracking-widest uppercase text-gray-500">{label}</span>
       <div className="mt-auto pt-3">
         <p className="text-2xl font-bold text-white leading-none tracking-tight">

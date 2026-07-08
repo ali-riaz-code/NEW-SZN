@@ -48,7 +48,7 @@ function TrendBadge({ pct }: { pct: number }) {
 // Standard KPI card — label pinned top, value+everything pinned bottom with breathing room
 export function KpiCard({ label, value, icon, trendPct, sparklineData, subtext, goal }: KpiCardProps) {
   return (
-    <div className="relative bg-[#111111] rounded-2xl p-6 flex flex-col min-h-[180px] border border-white/[0.06] cursor-default overflow-hidden"">
+    <div className="relative bg-[#111111] rounded-2xl p-6 flex flex-col min-h-[180px] border border-white/[0.06] cursor-default overflow-hidden">
 
       {/* Header — label + icon */}
       <div className="flex items-start justify-between">
@@ -101,7 +101,7 @@ export function KpiCard({ label, value, icon, trendPct, sparklineData, subtext, 
 // Pacing card — projection card, accepts optional sparkline
 export function PacingCard({ value, currency, sparklineData }: { value: string; currency: string; sparklineData?: number[] }) {
   return (
-    <div className="relative bg-[#111111] rounded-2xl p-6 flex flex-col min-h-[180px] border border-white/[0.06] cursor-default overflow-hidden"">
+    <div className="relative bg-[#111111] rounded-2xl p-6 flex flex-col min-h-[180px] border border-white/[0.06] cursor-default overflow-hidden">
 
       <div className="flex items-start justify-between">
         <span className="text-[10px] font-semibold tracking-widest uppercase text-gray-500">
