@@ -33,16 +33,6 @@ function GroundLineArt() {
         <path d="M-40 296 L52 388 L-40 480" />
         <path d="M-40 540 L120 700 L-40 860" />
         <path d="M-40 660 L60 760 L-40 860" />
-        {/* right-edge chevrons, mirrored */}
-        <path d="M1640 200 L1504 336 L1640 472" />
-        <path d="M1640 296 L1548 388 L1640 480" />
-        <path d="M1640 540 L1480 700 L1640 860" />
-        <path d="M1640 660 L1540 760 L1640 860" />
-        {/* top-edge chevrons */}
-        <path d="M220 -40 L380 130 L540 -40" />
-        <path d="M260 -40 L360 108 L460 -40" />
-        <path d="M1060 -40 L1220 130 L1380 -40" />
-        <path d="M1140 -40 L1240 108 L1340 -40" />
         {/* bottom-left building traces */}
         <path d="M60 1000 L60 900 L150 900 L150 1000" />
         <path d="M180 1000 L180 850 L210 850" />
