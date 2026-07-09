@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useState, useCallback } from 'react'
+import { useRef, useState, useCallback, memo } from 'react'
 
 const W = 600
 const H = 180
@@ -32,7 +32,7 @@ function fmt(dateStr: string) {
   return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
-export function BookingTrendChart({ data }: { data: Array<{ date: string; bookedCalls: number }> }) {
+export const BookingTrendChart = memo(function BookingTrendChart({ data }: { data: Array<{ date: string; bookedCalls: number }> }) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [hoverIdx, setHoverIdx] = useState<number | null>(null)
 
@@ -168,4 +168,4 @@ export function BookingTrendChart({ data }: { data: Array<{ date: string; booked
       </svg>
     </div>
   )
-}
+})

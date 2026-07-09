@@ -10,10 +10,6 @@
     color-scheme: dark;
   }
 
-  body {
-    /* Removed: decorative gold gradient washes (flat design per spec) */
-  }
-
   /* Reinforce dark color-scheme on selects so native dropdown popups render
      dark regardless of the OS theme setting. */
   select {

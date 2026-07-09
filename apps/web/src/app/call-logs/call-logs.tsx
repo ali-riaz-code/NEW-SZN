@@ -163,7 +163,7 @@ export function CallLogs({
           <input
             value={leadName}
             onChange={(e) => setLeadName(e.target.value)}
-            placeholder="Lead name…"
+            placeholder="Search by name…"
             className="bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-1.5 text-white text-xs placeholder:text-white/30 focus:outline-none focus:border-[#c9a96e]/40 w-36"
           />
           <input
@@ -206,7 +206,7 @@ export function CallLogs({
             style={{ colorScheme: 'dark' }}
             className="bg-[#1a1a1a] border border-white/[0.08] rounded-lg px-2 py-1.5 text-white text-xs focus:outline-none focus:border-[#c9a96e]/40"
           >
-            <option value="custom">Custom range</option>
+            <option value="custom">Custom</option>
             <option value="thisMonth">This month</option>
             <option value="lastMonth">Last month</option>
             <option value="last7">Last 7 days</option>
@@ -244,7 +244,7 @@ export function CallLogs({
                 onChange={(e) => setIncludeDeleted(e.target.checked)}
                 className="accent-[#c9a96e]"
               />
-              Show deleted
+              Include deleted
             </label>
           )}
         </div>
@@ -274,7 +274,7 @@ export function CallLogs({
               {loading ? (
                 <tr>
                   <td colSpan={8} className="py-8 text-center text-gray-700 text-xs">
-                    Loading…
+                    Loading calls…
                   </td>
                 </tr>
               ) : rows.length === 0 ? (
@@ -313,7 +313,7 @@ export function CallLogs({
                           style={{ colorScheme: 'dark' }}
                           className="bg-[#1a1a1a] border border-white/[0.08] rounded-lg px-2 py-1 text-white text-[11px] focus:outline-none focus:border-[#c9a96e]/40 disabled:opacity-50"
                         >
-                          <option value="">— tag —</option>
+                          <option value="">Set tag…</option>
                           {TAG_OPTIONS.map((o) => (
                             <option key={o.value} value={o.value}>
                               {o.label}
@@ -349,7 +349,7 @@ export function CallLogs({
                                   </option>
                                 ))}
                             </select>
-                            <button onClick={() => setReassignFor(null)} className="text-[10px] text-gray-500 px-1">
+                            <button onClick={() => setReassignFor(null)} aria-label="Cancel reassign" className="text-[10px] text-gray-500 px-1">
                               ✕
                             </button>
                           </span>
@@ -405,7 +405,7 @@ export function CallLogs({
               onClick={() => load(page - 1)}
               className="px-2 py-1 rounded bg-white/[0.05] disabled:opacity-30 hover:text-gray-300"
             >
-              ← Prev
+              ← Previous
             </button>
             <span>
               {page} / {totalPages}

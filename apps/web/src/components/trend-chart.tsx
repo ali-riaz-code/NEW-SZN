@@ -1,5 +1,5 @@
 'use client'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, memo } from 'react'
 
 interface TrendChartProps {
   title: string
@@ -21,7 +21,7 @@ function fmt(v: number, format: 'money' | 'count', currency?: string): string {
   return `${Math.round(display)} ${currency ?? ''}`.trim()
 }
 
-export function TrendChart({ title, data, labels, format, currency, subtitle, color = '#c9a96e', pointPrefix = 'Day ' }: TrendChartProps) {
+export const TrendChart = memo(function TrendChart({ title, data, labels, format, currency, subtitle, color = '#c9a96e', pointPrefix = 'Day ' }: TrendChartProps) {
   const [hoverIdx, setHoverIdx] = useState<number | null>(null)
 
   const W = 480
@@ -155,4 +155,4 @@ export function TrendChart({ title, data, labels, format, currency, subtitle, co
       </svg>
     </div>
   )
-}
+})

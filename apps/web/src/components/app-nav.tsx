@@ -68,7 +68,7 @@ function NavLink({ href, label, Icon, active, onNavigate }: NavItem & { active: 
       transition={{ duration: 0.12, ease: 'easeOut' }}
       className={`group relative flex items-center gap-3 rounded-full px-3 py-2.5 text-[13px] font-medium transition-all duration-200 ease-out hover:translate-x-[3px] ${
         active
-          ? 'bg-white/[0.07] text-white'
+          ? 'bg-gradient-to-r from-[#c9a96e]/[0.06] to-transparent text-white shadow-[inset_0_0_0_1px_rgba(201,169,110,0.08)]'
           : 'text-gray-500 hover:bg-white/[0.04] hover:text-gray-200'
       }`}
     >
@@ -76,7 +76,7 @@ function NavLink({ href, label, Icon, active, onNavigate }: NavItem & { active: 
       <span
         className={`absolute left-0 top-1/2 -translate-y-1/2 w-[2.5px] rounded-full transition-all duration-200 ease-out ${
           active
-            ? 'h-[20px] bg-[#c9a96e] opacity-100'
+            ? 'h-[24px] bg-[#c9a96e] opacity-100 shadow-[0_0_8px_rgba(201,169,110,0.35)]'
             : 'h-[16px] bg-[#c9a96e] opacity-0 group-hover:opacity-50'
         }`}
       />
@@ -171,7 +171,7 @@ export function AppNav({
 
       {/* ── Bottom card ── */}
       <div className="p-3 pb-4">
-        <div className="relative overflow-hidden rounded-xl border border-white/[0.05] bg-[#111111] p-4">
+        <div className="relative overflow-hidden rounded-xl border border-[#c9a96e]/10 bg-[#111111] p-4">
           <div className="relative">
             <div className="mb-2.5 flex h-7 w-7 items-center justify-center rounded-md bg-black/25 border border-white/[0.08]">
               <LogoMark className="h-4 w-auto" />

@@ -47,7 +47,7 @@ export function ActivityHeatmap({
       </p>
 
       {/* Day-of-week column headers */}
-      <div className="grid grid-cols-7 gap-1.5 mb-1.5">
+      <div className="grid grid-cols-7 gap-1.5 mb-2">
         {DOW.map((d, i) => (
           <div
             key={i}
@@ -106,7 +106,7 @@ export function ActivityHeatmap({
       </div>
 
       {/* Status bar — fixed height to prevent layout shift */}
-      <div className="mt-3.5 pt-3 border-t border-white/[0.05] flex items-center justify-between h-8">
+      <div className="mt-4 pt-3 border-t border-white/[0.05] flex items-center justify-between h-8">
         {hd ? (
           <>
             <p className="text-gray-400 text-[11px]">{fmtFull(hd.date)}</p>

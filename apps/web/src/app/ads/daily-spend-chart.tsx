@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, memo } from 'react'
 import { fetchDailySpendAction } from './actions'
 
 type Preset = '7D' | '14D' | '30D' | 'MTD'
@@ -37,7 +37,7 @@ const W = 480, H = 140, PADL = 58, PADR = 12, PADT = 12, PADB = 24
 const cW = W - PADL - PADR
 const cH = H - PADT - PADB
 
-export function DailySpendChart({ clientId }: { clientId?: string }) {
+export const DailySpendChart = memo(function DailySpendChart({ clientId }: { clientId?: string }) {
   const [preset, setPreset] = useState<Preset>('30D')
   const [points, setPoints] = useState<Point[]>([])
   const [loading, setLoading] = useState(true)
@@ -197,4 +197,4 @@ export function DailySpendChart({ clientId }: { clientId?: string }) {
       )}
     </div>
   )
-}
+})
