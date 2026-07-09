@@ -196,7 +196,7 @@ export default function LoginPage() {
             {/* Content pinned to top-left of the panel, above the skyline */}
             <div className="relative z-10 flex flex-col pl-4 pr-12 pt-4 pb-16">
               <p
-                className="szn-tagline max-w-[28rem] text-4xl font-bold leading-[1.22] tracking-[-0.02em] text-[#e3cfa4] [text-wrap:balance]"
+                className="szn-tagline max-w-[28rem] text-[2.5rem] font-bold leading-[1.2] tracking-[-0.025em] text-[#c9a96e] [text-wrap:balance]"
               >
                 Built for performance agencies that refuse to plateau
               </p>
