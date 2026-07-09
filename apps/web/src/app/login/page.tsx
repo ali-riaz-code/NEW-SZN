@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { LogoMark } from '@/components/icons'
 import { LoginForm } from './login-form'
-import { MotionFade } from './motion-fade'
+import { SpotlightCard } from './spotlight'
 import { BuildingIllustration } from './skyline'
 
 export const metadata: Metadata = { title: 'Sign in — NEW SZN' }
@@ -11,7 +11,10 @@ export const metadata: Metadata = { title: 'Sign in — NEW SZN' }
  * (do NOT propagate to the global system):
  *  - Pill (fully rounded) button + inputs — global buttons stay 8px radius.
  *  - Gold carries the illustration linework, exceeding the ≤10% accent rule.
- *  - Decorative hover/click flourish on the skyline (reduced-motion aware).
+ *  - Decorative motion beyond state changes: skyline hover/click flourish,
+ *    ambient window shimmer, pointer spotlight/parallax, entrance stagger,
+ *    and the sign-in cinematic (gold sweep + skyline light-up). All of it
+ *    is reduced-motion aware and none of it gates content visibility.
  */
 
 /* Faint gold line-art fragments on the page ground, clipped behind the card
@@ -49,11 +52,89 @@ export default function LoginPage() {
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       />
-      <style>{`
+      {/* dangerouslySetInnerHTML: quotes in CSS (content: '') get entity-escaped
+          when rendered as JSX text, causing a server/client hydration mismatch */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         #login-page {
           --font-body: Inter, sans-serif;
+          --easeq: cubic-bezier(0.22, 1, 0.36, 1);
         }
-      `}</style>
+
+        /* Entrance: each block rises once on load; content is never gated
+         * on a class toggle, so it renders visible everywhere. */
+        @keyframes szn-rise {
+          from { opacity: 0; transform: translateY(12px); }
+        }
+        .szn-item {
+          animation: szn-rise 560ms var(--easeq) both;
+          animation-delay: calc(80ms + var(--i, 0) * 70ms);
+        }
+        .szn-tagline {
+          animation: szn-rise 640ms var(--easeq) 200ms both;
+        }
+
+        /* Error feedback: sharp 3-cycle shake on the form. */
+        @keyframes szn-shake {
+          15%, 45%, 75% { transform: translateX(-5px); }
+          30%, 60%, 90% { transform: translateX(5px); }
+        }
+        .szn-shake {
+          animation: szn-shake 380ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
+        }
+        .szn-error-in {
+          animation: szn-rise 240ms var(--easeq) both;
+        }
+
+        /* Pending: white sheen sweeps the gold button while authenticating. */
+        .szn-btn::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          transform: translateX(-100%);
+          background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+        }
+        .szn-btn[data-pending]::after {
+          animation: szn-btn-sheen 1.15s ease-in-out infinite;
+        }
+        @keyframes szn-btn-sheen {
+          to { transform: translateX(100%); }
+        }
+
+        /* Sign-in cinematic: one gold light-sweep crosses the card when
+         * auth starts; the skyline windows light up behind it (skyline.tsx). */
+        #login-card::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          z-index: 30;
+          pointer-events: none;
+          background: linear-gradient(100deg, transparent 44%, rgba(201, 169, 110, 0.06) 50%, transparent 56%);
+          transform: translateX(-110%);
+        }
+        #login-card:has([data-auth-pending])::after {
+          animation: szn-sweep 1200ms var(--easeq) 60ms both;
+        }
+        @keyframes szn-sweep {
+          to { transform: translateX(110%); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .szn-item,
+          .szn-tagline,
+          .szn-shake,
+          .szn-error-in {
+            animation: none !important;
+          }
+          .szn-btn[data-pending]::after,
+          #login-card:has([data-auth-pending])::after {
+            animation: none;
+          }
+        }
+      `,
+        }}
+      />
 
       <div
         id="login-page"
@@ -62,7 +143,7 @@ export default function LoginPage() {
         <GroundLineArt />
 
         {/* Single rounded card holding both panels on one continuous surface */}
-        <div className="relative z-10 flex min-h-[calc(100dvh-2.5rem)] w-full max-w-[1440px] overflow-hidden rounded-3xl border border-white/[0.06] bg-[#111111] lg:min-h-[calc(100dvh-5rem)]">
+        <SpotlightCard className="relative z-10 flex min-h-[calc(100dvh-2.5rem)] w-full max-w-[1440px] overflow-hidden rounded-3xl border border-white/[0.06] bg-[#111111] lg:min-h-[calc(100dvh-5rem)]">
           {/* ── Left panel — login form ── */}
           <div className="relative flex w-full flex-col overflow-y-auto lg:w-1/2">
             {/* Logo — fixed top-left, decoupled from the centered form */}
@@ -81,22 +162,27 @@ export default function LoginPage() {
             </div>
 
             <div className="flex flex-1 flex-col items-center justify-center px-8 py-28 sm:px-12">
-              <MotionFade>
-                <div className="mx-auto w-full max-w-sm space-y-10">
-                  <div className="text-center">
-                    <h1 className="text-3xl font-bold tracking-tight text-white">Sign in</h1>
-                    <p className="mt-2 text-sm text-white/40">
-                      Welcome back! Please enter your details to continue.
-                    </p>
-                  </div>
-
-                  <LoginForm />
-
-                  <p className="text-center text-xs text-white/30">
-                    Access is by invitation only.
+              <div className="mx-auto w-full max-w-sm">
+                <div className="szn-item text-center" style={{ ['--i' as string]: 0 }}>
+                  <h1 className="text-3xl font-bold tracking-tight text-white [text-wrap:balance]">
+                    Sign in
+                  </h1>
+                  <p className="mt-3 text-sm leading-relaxed text-[#9ca3af]">
+                    Welcome back! Please enter your details to continue.
                   </p>
                 </div>
-              </MotionFade>
+
+                <div className="mt-10">
+                  <LoginForm />
+                </div>
+
+                <p
+                  className="szn-item mt-7 text-center text-xs text-white/55"
+                  style={{ ['--i' as string]: 4 }}
+                >
+                  Access is by invitation only.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -104,16 +190,12 @@ export default function LoginPage() {
           <div className="relative hidden overflow-hidden border-l border-white/[0.04] lg:flex lg:w-1/2">
             <BuildingIllustration />
             <div className="relative z-10 px-16 pt-24">
-              <p className="text-[2.35rem] font-semibold leading-[1.25] tracking-tight text-[#e3cfa4]">
-                Built for performance
-                <br />
-                agencies
-                <br />
-                that refuse to plateau
+              <p className="szn-tagline max-w-[26rem] text-4xl font-semibold leading-[1.22] tracking-[-0.02em] text-[#e3cfa4] [text-wrap:balance]">
+                Built for performance agencies that refuse to plateau
               </p>
             </div>
           </div>
-        </div>
+        </SpotlightCard>
       </div>
     </div>
   )

@@ -1,18 +1,29 @@
 'use client'
+import { useEffect, useRef } from 'react'
+import type { AnimationEvent } from 'react'
 import { useFormState, useFormStatus } from 'react-dom'
 import Link from 'next/link'
 import { loginAction } from './actions'
 
 /* Pill radius + leading field icons are a login-page-only reference
- * treatment — global inputs/buttons keep the 8px system radius. */
+ * treatment — global inputs/buttons keep the 8px system radius.
+ * Motion classes (szn-item, szn-btn, szn-shake, szn-error-in) are defined
+ * in the page-level style block, all reduced-motion aware. */
 
-const INPUT =
-  'w-full bg-white/5 border border-white/10 rounded-full h-11 pl-11 pr-4 text-white text-sm placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#c9a96e]/40 focus:border-[#c9a96e]/80 transition-all duration-150'
-
-const LABEL = 'block text-sm font-medium text-white/60 tracking-wide'
+const LABEL = 'block text-sm font-medium text-white/70 tracking-wide'
 
 const ICON_WRAP =
-  'pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/40'
+  'pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/40 transition-colors duration-150 group-focus-within:text-[#c9a96e]/90'
+
+function inputClass(invalid: boolean) {
+  return [
+    'w-full bg-white/5 border rounded-full h-11 pl-11 pr-4 text-white text-sm',
+    'placeholder:text-white/50 transition-all duration-150 focus:outline-none',
+    'focus:ring-2 focus:ring-[#c9a96e]/40 focus:border-[#c9a96e]/80',
+    'focus:shadow-[0_0_24px_rgba(201,169,110,0.12)]',
+    invalid ? 'border-red-400/50' : 'border-white/10',
+  ].join(' ')
+}
 
 function MailIcon() {
   return (
@@ -32,13 +43,22 @@ function LockIcon() {
   )
 }
 
+/* Invisible marker that flips on while the server action is pending; the
+ * page and skyline trigger the sign-in cinematic (gold sweep + windows
+ * lighting up) via #login-card:has([data-auth-pending]) selectors. */
+function PendingMarker() {
+  const { pending } = useFormStatus()
+  return <span hidden data-auth-pending={pending || undefined} />
+}
+
 function SubmitButton() {
   const { pending } = useFormStatus()
   return (
     <button
       type="submit"
       disabled={pending}
-      className="h-11 w-full rounded-full bg-[#c9a96e] text-sm font-semibold text-black transition-colors duration-150 hover:bg-[#d4b57d] active:bg-[#b8975c] disabled:opacity-50"
+      data-pending={pending || undefined}
+      className="szn-btn relative h-11 w-full overflow-hidden rounded-full bg-[#c9a96e] text-sm font-semibold text-black transition-[background-color,box-shadow,transform] duration-150 hover:bg-[#d4b57d] hover:shadow-[0_0_24px_rgba(201,169,110,0.28)] active:scale-[0.98] active:bg-[#b8975c] disabled:opacity-60"
     >
       {pending ? 'Signing in…' : 'Sign in'}
     </button>
@@ -47,14 +67,33 @@ function SubmitButton() {
 
 export function LoginForm() {
   const [state, formAction] = useFormState(loginAction, null)
+  const formRef = useRef<HTMLFormElement>(null)
+
+  useEffect(() => {
+    if (!state?.error) return
+    const el = formRef.current
+    if (!el) return
+    el.classList.remove('szn-shake')
+    // force reflow so a repeated error restarts the shake
+    void el.getBoundingClientRect()
+    el.classList.add('szn-shake')
+  }, [state])
+
+  const settle = (e: AnimationEvent<HTMLFormElement>) => {
+    if (e.target === e.currentTarget && e.animationName === 'szn-shake') {
+      e.currentTarget.classList.remove('szn-shake')
+    }
+  }
+
+  const invalid = Boolean(state?.error)
 
   return (
-    <form action={formAction} className="space-y-4">
-      <div>
+    <form ref={formRef} action={formAction} onAnimationEnd={settle} className="space-y-5">
+      <div className="szn-item" style={{ ['--i' as string]: 1 }}>
         <label htmlFor="email" className={`${LABEL} mb-1.5`}>
           Email <span aria-hidden="true" className="text-white/30">*</span>
         </label>
-        <div className="relative">
+        <div className="group relative">
           <span className={ICON_WRAP}>
             <MailIcon />
           </span>
@@ -65,12 +104,12 @@ export function LoginForm() {
             placeholder="you@example.com"
             required
             autoComplete="email"
-            className={INPUT}
+            className={inputClass(invalid)}
           />
         </div>
       </div>
 
-      <div>
+      <div className="szn-item" style={{ ['--i' as string]: 2 }}>
         <div className="mb-1.5 flex items-center justify-between">
           <label htmlFor="password" className={LABEL}>
             Password <span aria-hidden="true" className="text-white/30">*</span>
@@ -82,7 +121,7 @@ export function LoginForm() {
             Forgot password?
           </Link>
         </div>
-        <div className="relative">
+        <div className="group relative">
           <span className={ICON_WRAP}>
             <LockIcon />
           </span>
@@ -93,16 +132,19 @@ export function LoginForm() {
             placeholder="Enter password"
             required
             autoComplete="current-password"
-            className={INPUT}
+            className={inputClass(invalid)}
           />
         </div>
       </div>
 
       {state?.error && (
-        <p className="pt-0.5 text-xs text-red-400/80">{state.error}</p>
+        <p role="alert" className="szn-error-in pt-0.5 text-xs text-red-400/90">
+          {state.error}
+        </p>
       )}
 
-      <div className="pt-2">
+      <div className="szn-item pt-3" style={{ ['--i' as string]: 3 }}>
+        <PendingMarker />
         <SubmitButton />
       </div>
     </form>

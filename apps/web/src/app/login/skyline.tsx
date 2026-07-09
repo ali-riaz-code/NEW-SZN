@@ -14,8 +14,11 @@ import type { AnimationEvent, MouseEvent } from 'react'
  * Interaction is a decorative easter egg only (login-page-local, see
  * DESIGN.md deviation note in the page component): hovering a building adds
  * a soft gold outline glow; clicking pulses its window lights once (<500ms).
- * Both are disabled under prefers-reduced-motion. Cursor stays default so
- * nothing implies a functional control.
+ * The window columns also carry a slow ambient shimmer, shift a few px in
+ * parallax with the card pointer (--plx/--ply from SpotlightCard), and light
+ * up in sequence while sign-in is pending (#login-card:has([data-auth-pending])).
+ * All of it is disabled under prefers-reduced-motion. Cursor stays default
+ * so nothing implies a functional control.
  */
 
 function flourish(e: MouseEvent<SVGGElement>) {
@@ -48,8 +51,26 @@ export function BuildingIllustration() {
           filter: drop-shadow(0 0 6px rgba(201, 169, 110, 0.45))
             drop-shadow(0 0 16px rgba(201, 169, 110, 0.2));
         }
+        .szn-sky {
+          transform: translate3d(calc(var(--plx, 0) * 6px), calc(var(--ply, 0) * 4px), 0) scale(1.02);
+          transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
         .szn-win {
           opacity: var(--wo, 0.55);
+          animation: szn-win-ambient var(--wd, 8s) ease-in-out var(--wdel, 0s) infinite;
+        }
+        @keyframes szn-win-ambient {
+          0%, 100% { opacity: var(--wo, 0.55); }
+          50% { opacity: calc(var(--wo, 0.55) + 0.14); }
+        }
+        /* Sign-in cinematic: while auth is pending the city comes online,
+         * window columns lighting up in sequence behind the gold sweep. */
+        #login-card:has([data-auth-pending]) .szn-win {
+          animation: szn-win-on 460ms cubic-bezier(0.22, 1, 0.36, 1)
+            calc(480ms + var(--wi, 0) * 110ms) both;
+        }
+        @keyframes szn-win-on {
+          to { opacity: 1; }
         }
         @keyframes szn-win-pulse {
           0% { opacity: var(--wo, 0.55); }
@@ -75,12 +96,16 @@ export function BuildingIllustration() {
           animation: szn-win-pulse 420ms cubic-bezier(0.22, 1, 0.36, 1);
         }
         @media (prefers-reduced-motion: reduce) {
+          .szn-sky {
+            transition: none;
+          }
           .szn-bldg {
             transition: none;
           }
           .szn-bldg:hover {
             filter: none;
           }
+          .szn-win,
           .szn-bldg-flourish,
           .szn-bldg-flourish .szn-win {
             animation: none;
@@ -90,7 +115,7 @@ export function BuildingIllustration() {
 
       <svg
         viewBox="0 0 760 1060"
-        className="absolute inset-0 h-full w-full"
+        className="szn-sky absolute inset-0 h-full w-full"
         preserveAspectRatio="xMaxYMax slice"
         aria-hidden="true"
       >
@@ -153,10 +178,15 @@ export function BuildingIllustration() {
             strokeWidth="2"
             strokeLinejoin="round"
           />
-          {[248, 276, 304].map((x) => (
+          {[248, 276, 304].map((x, i) => (
             <line
               key={x}
               className="szn-win"
+              style={{
+                ['--wi' as string]: i,
+                ['--wdel' as string]: `${(-2.3 * i).toFixed(1)}s`,
+                ['--wd' as string]: `${8 + (i % 3) * 1.5}s`,
+              }}
               x1={x}
               y1={624}
               x2={x}
@@ -193,10 +223,15 @@ export function BuildingIllustration() {
             strokeWidth="2.5"
             strokeLinejoin="round"
           />
-          {[500, 534, 568, 602].map((x) => (
+          {[500, 534, 568, 602].map((x, i) => (
             <line
               key={x}
               className="szn-win"
+              style={{
+                ['--wi' as string]: i + 3,
+                ['--wdel' as string]: `${(-2.3 * (i + 3)).toFixed(1)}s`,
+                ['--wd' as string]: `${8 + ((i + 3) % 3) * 1.5}s`,
+              }}
               x1={x}
               y1={470}
               x2={x}
