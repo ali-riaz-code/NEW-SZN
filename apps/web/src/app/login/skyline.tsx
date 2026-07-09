@@ -43,9 +43,32 @@ export function BuildingIllustration() {
   return (
     <>
       <style>{`
+        /* ── Night-cycle sky ── */
+        @property --sky-tint { syntax: '<color>'; inherits: true; initial-value: #0a0a0f; }
+        .szn-sky-bg {
+          fill: #0a0a0f;
+          transition: fill 15s ease;
+        }
+        .szn-sky-bg-animate {
+          animation: szn-sky-cycle 30s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+        }
+        @keyframes szn-sky-cycle {
+          0%, 100% { fill: #0a0a0f; }
+          25%      { fill: #0f111a; }
+          50%      { fill: #141726; }
+          75%      { fill: #0f111a; }
+        }
+
         .szn-bldg {
           cursor: default;
-          transition: filter 250ms cubic-bezier(0.25, 1, 0.5, 1);
+          transition:
+            filter 250ms cubic-bezier(0.25, 1, 0.5, 1),
+            transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+          transform: perspective(800px)
+            rotateX(calc(var(--ply, 0) * var(--d, 0.4)deg))
+            rotateY(calc(var(--plx, 0) * var(--d, 0.4)deg))
+            translateZ(calc(var(--plx, 0) * var(--z, 0) * 1px));
+          will-change: transform;
         }
         .szn-bldg:hover {
           filter: drop-shadow(0 0 6px rgba(201, 169, 110, 0.45))
@@ -64,7 +87,7 @@ export function BuildingIllustration() {
           50% { opacity: calc(var(--wo, 0.55) + 0.14); }
         }
         /* Sign-in cinematic: while auth is pending the city comes online,
-         * window columns lighting up in sequence behind the gold sweep. */
+          * window columns lighting up in sequence behind the gold sweep. */
         #login-card:has([data-auth-pending]) .szn-win {
           animation: szn-win-on 460ms cubic-bezier(0.22, 1, 0.36, 1)
             calc(480ms + var(--wi, 0) * 110ms) both;
@@ -96,11 +119,17 @@ export function BuildingIllustration() {
           animation: szn-win-pulse 420ms cubic-bezier(0.22, 1, 0.36, 1);
         }
         @media (prefers-reduced-motion: reduce) {
-          .szn-sky {
-            transition: none;
-          }
+          .szn-sky,
+          .szn-sky-bg,
           .szn-bldg {
             transition: none;
+          }
+          .szn-sky-bg-animate {
+            animation: none;
+            fill: #0a0a0f;
+          }
+          .szn-bldg {
+            transform: none;
           }
           .szn-bldg:hover {
             filter: none;
@@ -140,8 +169,25 @@ export function BuildingIllustration() {
           </pattern>
         </defs>
 
-        {/* Far-left tall leaning tower (behind), diagonal hatch */}
-        <g {...bldg}>
+        {/* Night-cycle sky background rectangle */}
+        <rect x="0" y="0" width="760" height="1060" className="szn-sky-bg szn-sky-bg-animate" />
+
+        {/* Trees left — dark canopies, gold trunk marks (non-interactive) */}
+        <g pointerEvents="none">
+          <g fill="#080808" stroke="#c9a96e" strokeOpacity="0.18" strokeWidth="2">
+            <circle cx="155" cy="967" r="39" />
+            <circle cx="206" cy="1006" r="31" />
+          </g>
+          <g stroke="#c9a96e" strokeOpacity="0.75" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="155" y1="1060" x2="155" y2="1004" />
+            <line x1="155" y1="1014" x2="143" y2="994" />
+            <line x1="155" y1="1002" x2="167" y2="984" />
+            <line x1="206" y1="1060" x2="206" y2="1034" />
+          </g>
+        </g>
+
+        {/* Far-left tall leaning tower (behind), diagonal hatch — depth 0.6 */}
+        <g {...bldg} style={{ ['--d' as string]: '0.6', ['--z' as string]: '-2' }}>
           <path
             d="M0 1060 L40 621 L152 615 L152 1060"
             fill="url(#hatch-a)"
@@ -152,8 +198,8 @@ export function BuildingIllustration() {
           />
         </g>
 
-        {/* Short front building at the leaning tower's base */}
-        <g {...bldg}>
+        {/* Short front building at the leaning tower's base — depth 1.2 */}
+        <g {...bldg} style={{ ['--d' as string]: '1.2', ['--z' as string]: '4' }}>
           <path d="M10 1060 L10 812 L170 812 L170 1060" fill="#111111" stroke="none" />
           <path
             d="M10 1060 L10 812 L170 812 L170 1060"
@@ -167,8 +213,8 @@ export function BuildingIllustration() {
           <path d="M10 1060 L10 812 L170 812 L170 1060" fill="url(#hatch-a)" stroke="none" />
         </g>
 
-        {/* Mid tower with dashed gold window columns */}
-        <g {...bldg}>
+        {/* Mid tower with dashed gold window columns — depth 0.8 */}
+        <g {...bldg} style={{ ['--d' as string]: '0.8', ['--z' as string]: '-1' }}>
           <path
             d="M221 1060 L221 601 L330 601 L330 1060"
             fill="#ffffff"
@@ -198,8 +244,8 @@ export function BuildingIllustration() {
           ))}
         </g>
 
-        {/* Short front building overlapping the mid tower's right corner */}
-        <g {...bldg}>
+        {/* Short front building overlapping the mid tower — depth 1.0 */}
+        <g {...bldg} style={{ ['--d' as string]: '1.0', ['--z' as string]: '3' }}>
           <path d="M314 1060 L314 881 L414 881 L414 1060" fill="#111111" stroke="none" />
           <path
             d="M314 1060 L314 881 L414 881 L414 1060"
@@ -213,8 +259,8 @@ export function BuildingIllustration() {
           <path d="M314 1060 L314 881 L414 881 L414 1060" fill="url(#hatch-b)" stroke="none" />
         </g>
 
-        {/* Hero tower — gold, tallest, dashed window columns */}
-        <g {...bldg} style={{ ['--wo' as string]: '0.7' }}>
+        {/* Hero tower — gold, tallest, depth 0.4 (most distant) */}
+        <g {...bldg} style={{ ['--wo' as string]: '0.7', ['--d' as string]: '0.4', ['--z' as string]: '-3' }}>
           <path
             d="M474 1060 L474 445 L626 445 L626 1060"
             fill="#c9a96e"
@@ -243,8 +289,8 @@ export function BuildingIllustration() {
           ))}
         </g>
 
-        {/* Tall right tower, nearly touching the hero */}
-        <g {...bldg}>
+        {/* Tall right tower — depth 0.7 */}
+        <g {...bldg} style={{ ['--d' as string]: '0.7', ['--z' as string]: '-1' }}>
           <path
             d="M628 1060 L628 582 L725 582 L725 1060"
             fill="url(#hatch-b)"
@@ -255,8 +301,8 @@ export function BuildingIllustration() {
           />
         </g>
 
-        {/* Edge building, cropped by the right edge */}
-        <g {...bldg}>
+        {/* Edge building, cropped — depth 0.5 */}
+        <g {...bldg} style={{ ['--d' as string]: '0.5', ['--z' as string]: '-2' }}>
           <path
             d="M725 1060 L725 678 L760 678"
             fill="url(#hatch-a)"
@@ -267,21 +313,7 @@ export function BuildingIllustration() {
           />
         </g>
 
-        {/* Trees left — dark canopies, gold trunk marks (non-interactive) */}
-        <g pointerEvents="none">
-          <g fill="#080808" stroke="#c9a96e" strokeOpacity="0.18" strokeWidth="2">
-            <circle cx="155" cy="967" r="39" />
-            <circle cx="206" cy="1006" r="31" />
-          </g>
-          <g stroke="#c9a96e" strokeOpacity="0.75" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="155" y1="1060" x2="155" y2="1004" />
-            <line x1="155" y1="1014" x2="143" y2="994" />
-            <line x1="155" y1="1002" x2="167" y2="984" />
-            <line x1="206" y1="1060" x2="206" y2="1034" />
-          </g>
-        </g>
-
-        {/* Trees right — larger, in front of the right towers (non-interactive) */}
+        {/* Trees right — front layer, depth 1.4 (non-interactive) */}
         <g pointerEvents="none">
           <g fill="#080808" stroke="#c9a96e" strokeOpacity="0.18" strokeWidth="2">
             <circle cx="639" cy="957" r="46" />
