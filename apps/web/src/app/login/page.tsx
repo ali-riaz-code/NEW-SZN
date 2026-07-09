@@ -48,6 +48,8 @@ function GroundLineArt() {
 export default function LoginPage() {
   return (
     <div style={{ fontFamily: 'var(--font-body)' }}>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
@@ -154,10 +156,10 @@ export default function LoginPage() {
                 <LogoMark className="h-6 w-auto" />
               </div>
               <div>
-                <p className="text-sm font-bold uppercase leading-none tracking-[0.06em] text-white">
+                <p className="text-sm font-bold uppercase leading-none tracking-[0.04em] text-white">
                   NEW SZN<sup className="ml-px text-[7px] font-bold">®</sup>
                 </p>
-                <p className="text-[8px] uppercase tracking-[0.16em] text-gray-600">
+                <p className="mt-0.5 text-[9px] uppercase tracking-[0.12em] text-gray-500">
                   Agency Performance
                 </p>
               </div>
@@ -166,7 +168,7 @@ export default function LoginPage() {
             <div className="flex flex-1 flex-col items-center justify-center px-8 py-28 sm:px-12">
               <div className="mx-auto w-full max-w-sm">
                 <div className="szn-item text-center" style={{ ['--i' as string]: 0 }}>
-                  <h1 className="text-3xl font-bold tracking-tight text-white [text-wrap:balance]">
+                  <h1 className="text-3xl font-bold tracking-[-0.03em] text-white [text-wrap:balance]">
                     Sign in
                   </h1>
                   <p className="mt-3 text-sm leading-normal text-[#9ca3af]">
@@ -192,14 +194,14 @@ export default function LoginPage() {
           <SpotlightCard className="relative hidden overflow-hidden border-l border-white/[0.04] lg:flex lg:w-1/2">
             <BuildingIllustration />
             {/* Content pinned to top-left of the panel, above the skyline */}
-            <div className="relative z-10 flex flex-col px-12 pt-14 pb-16">
+            <div className="relative z-10 flex flex-col pl-10 pr-12 pt-10 pb-16">
               <p
                 className="szn-tagline max-w-[28rem] text-4xl font-bold leading-[1.22] tracking-[-0.02em] text-[#e3cfa4] [text-wrap:balance]"
               >
                 Built for performance agencies that refuse to plateau
               </p>
               <p
-                className="szn-tagline mt-6 max-w-sm text-sm leading-normal tracking-[0.01em] text-[#9ca3af]"
+                className="szn-tagline mt-6 max-w-sm text-sm leading-normal tracking-[0.02em] text-[#9ca3af]"
                 style={{ animationDelay: '420ms' }}
               >
                 Revenue, calls, ads &mdash; one real-time scoreboard your team actually checks.

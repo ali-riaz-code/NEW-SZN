@@ -116,7 +116,7 @@ export function LoginForm() {
           </label>
           <Link
             href="/auth/forgot-password"
-            className="text-xs text-white/60 transition-colors duration-150 hover:text-white/80"
+            className="text-xs font-medium text-white/60 transition-colors duration-150 hover:text-white/80"
           >
             Forgot password?
           </Link>
