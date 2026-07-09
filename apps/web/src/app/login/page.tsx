@@ -77,6 +77,23 @@ export default function LoginPage() {
           animation: szn-rise 640ms var(--easeq) 200ms both;
         }
 
+        /* Delight: tagline and sub-text respond to the spotlight pointer
+         * with a barely-there 3D tilt (≤0.6°), like engraved dimensional
+         * type catching the mouse-following light. Hover adds a faint gold
+         * aura. Reduced-motion suppresses both. */
+        .szn-text-dim {
+          transform: perspective(600px)
+            rotateX(calc(var(--ply, 0) * 0.6deg))
+            rotateY(calc(var(--plx, 0) * 0.6deg));
+          transition:
+            transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
+            text-shadow 350ms ease;
+          will-change: transform;
+        }
+        .szn-text-dim:hover {
+          text-shadow: 0 0 20px rgba(201, 169, 110, 0.12);
+        }
+
         /* Error feedback: sharp 3-cycle shake on the form. */
         @keyframes szn-shake {
           15%, 45%, 75% { transform: translateX(-5px); }
@@ -128,6 +145,10 @@ export default function LoginPage() {
           .szn-shake,
           .szn-error-in {
             animation: none !important;
+          }
+          .szn-text-dim {
+            transform: none !important;
+            text-shadow: none !important;
           }
           .szn-btn[data-pending]::after,
           #login-card:has([data-auth-pending])::after {
@@ -196,12 +217,12 @@ export default function LoginPage() {
             {/* Content pinned to top-left of the panel, above the skyline */}
             <div className="relative z-10 flex flex-col pl-4 pr-12 pt-4 pb-16">
               <p
-                className="szn-tagline max-w-[28rem] text-[2.5rem] font-bold leading-[1.2] tracking-[-0.025em] text-[#c9a96e] [text-wrap:balance]"
+                className="szn-tagline szn-text-dim max-w-[28rem] text-[2.5rem] font-bold leading-[1.2] tracking-[-0.025em] text-[#c9a96e] [text-wrap:balance]"
               >
                 Built for performance agencies that refuse to plateau
               </p>
               <p
-                className="szn-tagline mt-4 max-w-sm text-sm leading-normal tracking-[0.02em] text-[#9ca3af]"
+                className="szn-tagline szn-text-dim mt-4 max-w-sm text-sm leading-normal tracking-[0.02em] text-[#9ca3af]"
                 style={{ animationDelay: '420ms' }}
               >
                 Revenue, calls, ads &mdash; one real-time scoreboard your team actually checks.
