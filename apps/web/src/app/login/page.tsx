@@ -52,7 +52,7 @@ export default function LoginPage() {
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;500;600;700&display=swap"
       />
       {/* dangerouslySetInnerHTML: quotes in CSS (content: '') get entity-escaped
           when rendered as JSX text, causing a server/client hydration mismatch */}
@@ -217,13 +217,14 @@ export default function LoginPage() {
             {/* Content pinned to top-left of the panel, above the skyline */}
             <div className="relative z-10 flex flex-col pl-4 pr-12 pt-4 pb-16">
               <p
-                className="szn-tagline szn-text-dim max-w-[28rem] text-[2.5rem] font-bold leading-[1.2] tracking-[-0.025em] text-[#c9a96e] [text-wrap:balance]"
+                className="szn-tagline szn-text-dim max-w-[28rem] text-3xl font-bold leading-[1.2] tracking-[-0.025em] text-[#c9a96e] [text-wrap:balance]"
+                style={{ fontFamily: 'Geist' }}
               >
                 Built for performance agencies that refuse to plateau
               </p>
               <p
                 className="szn-tagline szn-text-dim mt-4 max-w-sm text-sm leading-normal tracking-[0.02em] text-[#9ca3af]"
-                style={{ animationDelay: '420ms' }}
+                style={{ animationDelay: '420ms', fontFamily: 'Geist' }}
               >
                 Revenue, calls, ads &mdash; one real-time scoreboard your team actually checks.
               </p>
