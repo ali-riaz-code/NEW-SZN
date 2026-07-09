@@ -82,11 +82,11 @@ function GoalProgressBars({ kpis, currency }: { kpis: MasterDashboardData['kpis'
   return (
     <div className="bg-[#111111] rounded-2xl p-5">
       <SectionHeading>Monthly Goals</SectionHeading>
-      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 stagger-children">
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-3 stagger-children">
         {items.map(({ label, goal, display }) => (
-          <div key={label} className="group">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs text-gray-400 group-hover:text-gray-300 transition-colors duration-150">{label}</span>
+          <div key={label} className="group rounded-lg bg-white/[0.02] p-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-gray-500 group-hover:text-gray-300 transition-colors duration-150">{label}</span>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-white">{display}</span>
                 <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${BAND_BG[goal!.band]} ${BAND_TEXT[goal!.band]}`}>
@@ -94,7 +94,7 @@ function GoalProgressBars({ kpis, currency }: { kpis: MasterDashboardData['kpis'
                 </span>
               </div>
             </div>
-            <div className="h-2 w-full bg-white/[0.05] rounded-full overflow-hidden">
+            <div className="h-2 w-full bg-white/[0.06] rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-700 ease-out ${BAND_COLOR[goal!.band]} ${BAND_GLOW[goal!.band]}`}
                 style={{ width: `${Math.min(goal!.pct, 100)}%` }}
