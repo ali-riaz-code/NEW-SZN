@@ -78,7 +78,7 @@ function GoalProgressBars({ kpis, currency }: { kpis: MasterDashboardData['kpis'
   if (items.length === 0) return null
 
   return (
-    <div className="mt-4 bg-[#111111] rounded-2xl p-5">
+      <div className="bg-[#111111] rounded-2xl p-5">
       <SectionHeading>Monthly Goals</SectionHeading>
       <div className="mt-4 space-y-4">
         {items.map(({ label, goal, display }) => (
@@ -178,10 +178,11 @@ export default async function MasterDashboardPage() {
   const isAdmin = session.user.role === 'ADMIN'
 
   return (
-    <main className="min-h-screen text-white p-6 md:p-8 animate-fade">
+    <main className="mx-auto min-h-screen w-full max-w-[1800px] text-white p-6 md:p-8 animate-fade">
       {/* ── Dashboard header ──────────────────────────────────────────── */}
-      <div className="mb-6">
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
         <h1 className="text-[10px] font-semibold tracking-widest uppercase text-gray-500">Master Dashboard</h1>
+        {period?.label && <p className="text-xs text-gray-400">{period.label}</p>}
       </div>
       {/* ── KPI Grid: 2 rows × 4 cards ─────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5 stagger-children">
@@ -253,17 +254,19 @@ export default async function MasterDashboardPage() {
       </div>
 
       {/* ── Monthly Goals — only renders when goals are configured ── */}
-      <GoalProgressBars kpis={kpis} currency={currency} />
+      <div className="mt-8">
+        <GoalProgressBars kpis={kpis} currency={currency} />
+      </div>
 
       {/* ── Setter Activity (admin only) ─────────────────────────────────── */}
       {isAdmin && setterSummary.length > 0 && (
-        <div className="mt-4">
+        <div className="mt-6">
           <SetterSummary rows={setterSummary} />
         </div>
       )}
 
       {/* ── Interactive Trend Charts ────────────────────────────────────── */}
-      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
         <TrendChart
           title="Revenue Trend · last 6 months"
           data={revenueTrend.map((r) => r.value)}
@@ -285,13 +288,13 @@ export default async function MasterDashboardPage() {
 
       {/* ── AI: Insights + Next Best Action (NBA is internal-only — its API
              rejects CLIENT, so don't render it an error card) ─────────────── */}
-      <div className={`mt-4 grid grid-cols-1 gap-4 ${isAdmin ? 'md:grid-cols-2' : ''}`}>
+      <div className={`mt-6 grid grid-cols-1 gap-4 md:gap-5 ${isAdmin ? 'md:grid-cols-2' : ''}`}>
         <AiInsights dashboard="master" />
         {isAdmin && <NextBestAction />}
       </div>
 
       {/* ── Leaderboard ─────────────────────────────────────────────────── */}
-      <div className="mt-4">
+      <div className="mt-6">
         <Leaderboard rows={leaderboard} />
       </div>
     </main>
