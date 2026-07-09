@@ -171,7 +171,7 @@ export default async function AdsPage({ searchParams }: { searchParams: { client
       )}
 
       {status?.lastStatus === 'FAILED' && status.lastError && (
-        <div className="mb-4 bg-[#2a0b0b] border border-red-500/20 rounded-2xl p-4 text-sm text-red-300">
+        <div className="mb-4 bg-[#2a0b0b] border border-[#f87171]/20 rounded-2xl p-4 text-sm text-[#f87171]">
           Last sync failed: {status.lastError}
         </div>
       )}

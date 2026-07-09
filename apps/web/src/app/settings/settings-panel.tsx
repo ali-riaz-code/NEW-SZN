@@ -92,7 +92,7 @@ export function Banner({ error, ok }: { error?: string | null; ok?: string | nul
   return (
     <div
       className={`rounded-xl p-3 mb-3 text-sm ${
-        error ? 'bg-[#2a0b0b] border border-red-500/20 text-red-300' : 'bg-[#0b2a17] border border-green-500/20 text-green-300'
+        error ? 'bg-[#2a0b0b] border border-[#f87171]/20 text-[#f87171]' : 'bg-[#0b2a17] border border-[#4ade80]/20 text-[#4ade80]'
       }`}
     >
       {error ?? ok}

@@ -69,7 +69,7 @@ export function FollowUpList({ rows, showCloser }: { rows: FollowUpRow[]; showCl
   return (
     <div className="space-y-2">
       {error && (
-        <div className="bg-[#2a0b0b] border border-red-500/20 rounded-xl p-3 text-sm text-red-300">{error}</div>
+        <div className="bg-[#2a0b0b] border border-[#f87171]/20 rounded-xl p-3 text-sm text-[#f87171]">{error}</div>
       )}
       {rows.map((r) => (
         <div key={r.id} className="bg-[#111111] rounded-2xl p-4">

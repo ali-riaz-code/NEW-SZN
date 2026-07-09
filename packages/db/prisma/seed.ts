@@ -554,6 +554,7 @@ async function main() {
 
   // ── 3. Clear existing call data for real clients ──────────────────────────────
   const realClientIds = ['client-daniel', 'client-julie', 'client-lennart', 'client-matti', 'client-hope']
+  await prisma.leadTag.deleteMany({ where: { call: { clientId: { in: realClientIds } } } })
   await prisma.call.deleteMany({ where: { clientId: { in: realClientIds } } })
   console.log('  Cleared existing calls')
 

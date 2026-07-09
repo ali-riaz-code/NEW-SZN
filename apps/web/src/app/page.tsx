@@ -141,13 +141,15 @@ function SetterSummary({ rows }: { rows: MasterDashboardData['setterSummary'] })
   )
 }
 
-function EmptyState() {
+function EmptyState({ isAdmin }: { isAdmin: boolean }) {
   return (
     <main className="min-h-screen flex items-center justify-center p-8">
       <div className="text-center">
         <p className="text-gray-400 text-sm font-medium">No data yet</p>
         <p className="text-gray-600 text-xs mt-1">
-          Data will appear once clients are added and activity is logged.
+          {isAdmin
+            ? 'Data will appear once clients are added and activity is logged.'
+            : 'Your performance data will appear here once activity is logged.'}
         </p>
       </div>
     </main>
@@ -172,12 +174,13 @@ export default async function MasterDashboardPage() {
     fetchError = true
   }
 
+  const isAdmin = session.user.role === 'ADMIN'
+
   if (fetchError || !data || data.empty) {
-    return <EmptyState />
+    return <EmptyState isAdmin={isAdmin} />
   }
 
   const { kpis, leaderboard, setterSummary, revenueTrend, dealsTrend, currency, period } = data
-  const isAdmin = session.user.role === 'ADMIN'
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-[1800px] text-white p-6 md:p-8 animate-fade">

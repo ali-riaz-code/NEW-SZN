@@ -170,8 +170,8 @@ export function AiReports({ clients, isAdmin }: { clients: ClientOption[]; isAdm
         {banner && (
           <div className={`mb-4 rounded-xl px-3 py-2.5 text-xs ${
             banner.type === 'ok'
-              ? 'bg-[#0d2818] border border-green-500/20 text-green-400'
-              : 'bg-[#2a0b0b] border border-red-500/20 text-red-300'
+              ? 'bg-[#0b2a17] border border-[#4ade80]/20 text-[#4ade80]'
+              : 'bg-[#2a0b0b] border border-[#f87171]/20 text-[#f87171]'
           }`}>
             {banner.msg}
           </div>
@@ -302,7 +302,7 @@ export function AiReports({ clients, isAdmin }: { clients: ClientOption[]; isAdm
         </div>
 
         {histError && (
-          <div className="bg-[#2a0b0b] border border-red-500/20 rounded-xl p-3 mb-3 text-xs text-red-300">
+          <div className="bg-[#2a0b0b] border border-[#f87171]/20 rounded-xl p-3 mb-3 text-xs text-[#f87171]">
             {histError}
           </div>
         )}

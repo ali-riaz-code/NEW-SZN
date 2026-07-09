@@ -114,7 +114,7 @@ export function TodayCallLogTable({
       </div>
 
       {error && (
-        <div className="mb-3 text-xs text-red-400 bg-[#2a0b0b] border border-red-500/20 rounded-lg p-2">{error}</div>
+        <div className="mb-3 text-xs text-[#f87171] bg-[#2a0b0b] border border-[#f87171]/20 rounded-lg p-2">{error}</div>
       )}
 
       {rows.length === 0 ? (

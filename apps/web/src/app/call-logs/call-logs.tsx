@@ -251,7 +251,7 @@ export function CallLogs({
       </div>
 
       {error && (
-        <div className="bg-[#2a0b0b] border border-red-500/20 rounded-xl p-3 mb-3 text-sm text-red-300">{error}</div>
+        <div className="bg-[#2a0b0b] border border-[#f87171]/20 rounded-xl p-3 mb-3 text-sm text-[#f87171]">{error}</div>
       )}
 
       {/* Table */}
@@ -398,7 +398,7 @@ export function CallLogs({
 
         {/* Pagination */}
         <div className="flex items-center justify-between mt-4 text-xs text-gray-500">
-          <span>{total} calls</span>
+          <span>{loading ? 'Loading…' : `${total} call${total !== 1 ? 's' : ''}`}</span>
           <div className="flex items-center gap-2">
             <button
               disabled={page <= 1 || loading}
