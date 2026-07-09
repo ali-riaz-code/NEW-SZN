@@ -154,6 +154,8 @@ export function BookingTrendChart({ data }: { data: Array<{ date: string; booked
         {points.map(([x, y], i) => (
           <circle key={i} cx={x} cy={y} r="1.5" fill="#c9a96e" opacity="0.35" />
         ))}
+        {/* end dot — pulses to signal live data */}
+        <circle cx={points[points.length - 1]![0]} cy={points[points.length - 1]![1]} r="3" fill="#c9a96e" className="chart-end-dot" />
 
         {/* hover cursor + highlight */}
         {hp && (

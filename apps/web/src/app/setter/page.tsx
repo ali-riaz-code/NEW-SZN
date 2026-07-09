@@ -162,7 +162,7 @@ export default async function SetterPage() {
 
   return (
     <main className="min-h-screen text-white p-6 md:p-8 animate-fade">
-      <h1 className="text-[10px] font-semibold tracking-widest uppercase text-gray-500 mb-6">
+      <h1 className="text-[10px] font-semibold tracking-widest uppercase text-gray-500 mb-8">
         Appointment Setting
       </h1>
 

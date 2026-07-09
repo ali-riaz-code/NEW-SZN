@@ -90,7 +90,9 @@ function MetricCard({
 }) {
   const isUp = (trendPct ?? 0) >= 0
   return (
-    <div className="relative bg-[#111111] rounded-2xl p-5 flex flex-col min-h-[135px] border border-white/[0.06] cursor-default overflow-hidden">
+    <div className="relative bg-gradient-to-br from-[#161616] to-[#0f0f0f] rounded-2xl p-5 flex flex-col min-h-[135px] border border-white/[0.06] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[#c9a96e]/[0.12] hover:shadow-[0_0_40px_rgba(0,0,0,0.6),0_0_0_1px_rgba(201,169,110,0.06)] cursor-default overflow-hidden">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c9a96e]/25 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#c9a96e]/[0.07] to-transparent pointer-events-none" />
       <span className="text-[10px] font-semibold tracking-widest uppercase text-gray-500">{label}</span>
       <div className="mt-auto pt-3">
         <p className="text-2xl font-bold text-white leading-none tracking-tight">

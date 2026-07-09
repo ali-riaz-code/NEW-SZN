@@ -120,6 +120,15 @@
     animation: szn-sheen 1.5s linear infinite;
   }
 
+  /* Delight: slow gold pulse on chart end-dot (signals live data). */
+  @keyframes dot-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .chart-end-dot {
+    animation: dot-pulse 2.4s ease-in-out infinite;
+  }
+
   /* Removed: .accent-sheen gradient text (absolute design ban) */
 }
 

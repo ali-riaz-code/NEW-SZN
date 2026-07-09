@@ -144,7 +144,7 @@ export function TrendChart({ title, data, labels, format, currency, subtitle, co
           <line x1={hovered.x} y1={PADT} x2={hovered.x} y2={PADT + chartH} stroke={color} strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.4" />
         )}
 
-        <circle cx={pts[pts.length - 1]![0]} cy={pts[pts.length - 1]![1]} r="3" fill={color} />
+        <circle cx={pts[pts.length - 1]![0]} cy={pts[pts.length - 1]![1]} r="3" fill={color} className="chart-end-dot" />
 
         {hovered && (
           <>

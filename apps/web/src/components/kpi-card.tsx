@@ -48,7 +48,9 @@ function TrendBadge({ pct }: { pct: number }) {
 // Standard KPI card — label pinned top, value+everything pinned bottom with breathing room
 export function KpiCard({ label, value, icon, trendPct, sparklineData, subtext, goal }: KpiCardProps) {
   return (
-    <div className="relative bg-[#111111] rounded-2xl p-6 flex flex-col min-h-[180px] border border-white/[0.06] cursor-default overflow-hidden">
+    <div className="relative bg-gradient-to-br from-[#161616] to-[#0f0f0f] rounded-2xl p-6 flex flex-col min-h-[180px] border border-white/[0.06] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[#c9a96e]/[0.12] hover:shadow-[0_0_40px_rgba(0,0,0,0.6),0_0_0_1px_rgba(201,169,110,0.06)] cursor-default overflow-hidden">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c9a96e]/25 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#c9a96e]/[0.07] to-transparent pointer-events-none" />
 
       {/* Header — label + icon */}
       <div className="flex items-start justify-between">
@@ -101,7 +103,9 @@ export function KpiCard({ label, value, icon, trendPct, sparklineData, subtext, 
 // Pacing card — projection card, accepts optional sparkline
 export function PacingCard({ value, currency, sparklineData }: { value: string; currency: string; sparklineData?: number[] }) {
   return (
-    <div className="relative bg-[#111111] rounded-2xl p-6 flex flex-col min-h-[180px] border border-white/[0.06] cursor-default overflow-hidden">
+    <div className="relative bg-gradient-to-br from-[#161616] to-[#0f0f0f] rounded-2xl p-6 flex flex-col min-h-[180px] border border-white/[0.06] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[#c9a96e]/[0.12] hover:shadow-[0_0_40px_rgba(0,0,0,0.6),0_0_0_1px_rgba(201,169,110,0.06)] cursor-default overflow-hidden">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c9a96e]/25 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#c9a96e]/[0.07] to-transparent pointer-events-none" />
 
       <div className="flex items-start justify-between">
         <span className="text-[10px] font-semibold tracking-widest uppercase text-gray-500">

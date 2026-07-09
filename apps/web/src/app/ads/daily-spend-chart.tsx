@@ -185,7 +185,7 @@ export function DailySpendChart({ clientId }: { clientId?: string }) {
             />
           )}
 
-          <circle cx={pts[pts.length - 1]![0]} cy={pts[pts.length - 1]![1]} r="3" fill={COLOR} />
+          <circle cx={pts[pts.length - 1]![0]} cy={pts[pts.length - 1]![1]} r="3" fill={COLOR} className="chart-end-dot" />
 
           {hovered && (
             <>
