@@ -194,7 +194,7 @@ export default function LoginPage() {
           <SpotlightCard className="relative hidden overflow-hidden border-l border-white/[0.04] lg:flex lg:w-1/2">
             <BuildingIllustration />
             {/* Content pinned to top-left of the panel, above the skyline */}
-            <div className="relative z-10 flex flex-col pl-10 pr-12 pt-10 pb-16">
+            <div className="relative z-10 flex flex-col pl-8 pr-12 pt-8 pb-16">
               <p
                 className="szn-tagline max-w-[28rem] text-4xl font-bold leading-[1.22] tracking-[-0.02em] text-[#e3cfa4] [text-wrap:balance]"
               >
