@@ -167,8 +167,8 @@ export default function LoginPage() {
                   <h1 className="text-3xl font-bold tracking-tight text-white [text-wrap:balance]">
                     Sign in
                   </h1>
-                  <p className="mt-3 text-sm leading-relaxed text-[#9ca3af]">
-                    Welcome back! Please enter your details to continue.
+                  <p className="mt-3 text-sm leading-normal text-[#9ca3af]">
+                    Welcome back. Please enter your details to continue.
                   </p>
                 </div>
 
@@ -189,9 +189,20 @@ export default function LoginPage() {
           {/* ── Right panel — slogan + illustration, same continuous surface ── */}
           <div className="relative hidden overflow-hidden border-l border-white/[0.04] lg:flex lg:w-1/2">
             <BuildingIllustration />
-            <div className="relative z-10 px-16 pt-24">
-              <p className="szn-tagline max-w-[26rem] text-4xl font-semibold leading-[1.22] tracking-[-0.02em] text-[#e3cfa4] [text-wrap:balance]">
+            {/* Content sits above the skyline; generous top padding aligns
+             * roughly with the left panel logo, and bottom padding creates
+             * a clear pause before the illustration emerges. */}
+            <div className="relative z-10 flex flex-col justify-center px-16 py-40">
+              <p
+                className="szn-tagline max-w-[28rem] text-4xl font-bold leading-[1.22] tracking-[-0.02em] text-[#e3cfa4] [text-wrap:balance]"
+              >
                 Built for performance agencies that refuse to plateau
+              </p>
+              <p
+                className="szn-tagline mt-6 max-w-sm text-sm leading-normal tracking-[0.01em] text-[#9ca3af]"
+                style={{ animationDelay: '420ms' }}
+              >
+                Revenue, calls, ads &mdash; one real-time scoreboard your team actually checks.
               </p>
             </div>
           </div>
