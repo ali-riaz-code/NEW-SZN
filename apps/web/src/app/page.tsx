@@ -63,10 +63,13 @@ interface MasterDashboardData {
 // ─── Inline sub-components ────────────────────────────────────────────────────
 
 function GoalProgressBars({ kpis, currency }: { kpis: MasterDashboardData['kpis']; currency: string }) {
-  const BAND_COLOR = { green: 'bg-green-500', amber: 'bg-amber-400', red: 'bg-red-500' }
-  const BAND_BG = { green: 'bg-green-500/10', amber: 'bg-amber-400/10', red: 'bg-red-500/10' }
-  const BAND_TEXT = { green: 'text-green-400', amber: 'text-amber-400', red: 'text-red-400' }
-  const BAND_GLOW = { green: 'shadow-[0_0_6px_rgba(74,222,128,0.35)]', amber: 'shadow-[0_0_6px_rgba(245,158,11,0.35)]', red: 'shadow-[0_0_6px_rgba(248,113,113,0.35)]' }
+  // Exact semantic-signal hex from DESIGN.md — same vocabulary as trend/outcome badges.
+  // Track is a low-alpha wash of the fill so each row reads as one colored unit.
+  const BAND = {
+    green: { fill: '#4ade80', track: 'rgba(74,222,128,0.12)', surface: '#0b2a17' },
+    amber: { fill: '#f59e0b', track: 'rgba(245,158,11,0.12)', surface: '#2a1f0b' },
+    red:   { fill: '#f87171', track: 'rgba(248,113,113,0.12)', surface: '#2a0b0b' },
+  } as const
   const items = [
     { label: 'Total Revenue',   goal: kpis.totalRevenue.goal,      display: formatMoney(kpis.totalRevenue.value, kpis.totalRevenue.currency ?? currency) },
     { label: 'Cash Collected',  goal: kpis.totalCashCollected.goal, display: formatMoney(kpis.totalCashCollected.value, kpis.totalCashCollected.currency ?? currency) },
@@ -82,26 +85,44 @@ function GoalProgressBars({ kpis, currency }: { kpis: MasterDashboardData['kpis'
   return (
     <div className="bg-[#111111] rounded-2xl p-5">
       <SectionHeading>Monthly Goals</SectionHeading>
-      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-3 stagger-children">
-        {items.map(({ label, goal, display }) => (
-          <div key={label} className="group rounded-lg bg-white/[0.02] p-3">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-gray-500 group-hover:text-gray-300 transition-colors duration-150">{label}</span>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-white">{display}</span>
-                <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${BAND_BG[goal!.band]} ${BAND_TEXT[goal!.band]}`}>
-                  {goal!.pct}%
-                </span>
+      {/* Full-width rows in a two-up grid; hairline dividers separate rows within each column. */}
+      <div className="mt-1 grid grid-cols-1 lg:grid-cols-2 gap-x-12 stagger-children">
+        {items.map(({ label, goal, display }) => {
+          const c = BAND[goal!.band]
+          return (
+            <div
+              key={label}
+              className="flex flex-col gap-2 border-t border-white/[0.06] py-3.5 first:border-t-0 lg:[&:nth-child(2)]:border-t-0"
+            >
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-[13px] font-medium text-gray-400">{label}</span>
+                <div className="flex items-baseline gap-2.5">
+                  <span className="text-sm font-semibold tabular-nums text-white">{display}</span>
+                  <span
+                    className="shrink-0 self-center rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums"
+                    style={{ backgroundColor: c.surface, color: c.fill }}
+                  >
+                    {goal!.pct}%
+                  </span>
+                </div>
+              </div>
+              <div
+                className="h-2.5 w-full overflow-hidden rounded-full"
+                style={{ backgroundColor: c.track }}
+                role="progressbar"
+                aria-label={`${label} goal progress`}
+                aria-valuenow={goal!.pct}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              >
+                <div
+                  className="h-full rounded-full transition-[width] duration-700 ease-out motion-reduce:transition-none"
+                  style={{ width: `${Math.min(goal!.pct, 100)}%`, backgroundColor: c.fill }}
+                />
               </div>
             </div>
-            <div className="h-2 w-full bg-white/[0.06] rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-700 ease-out ${BAND_COLOR[goal!.band]} ${BAND_GLOW[goal!.band]}`}
-                style={{ width: `${Math.min(goal!.pct, 100)}%` }}
-              />
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
