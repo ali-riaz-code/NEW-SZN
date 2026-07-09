@@ -182,7 +182,7 @@ export default async function MasterDashboardPage() {
       {/* ── Dashboard header ──────────────────────────────────────────── */}
       <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
         <h1 className="text-[10px] font-semibold tracking-widest uppercase text-gray-500">Master Dashboard</h1>
-        {period?.label && <p className="text-xs text-gray-400">{period.label}</p>}
+        
       </div>
       {/* ── KPI Grid: 2 rows × 4 cards ─────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5 stagger-children">

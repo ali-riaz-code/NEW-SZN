@@ -13,12 +13,12 @@ import { loginAction } from './actions'
 const LABEL = 'block text-sm font-medium text-white/70 tracking-wide'
 
 const ICON_WRAP =
-  'pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/40 transition-colors duration-150 group-focus-within:text-[#c9a96e]/90'
+  'pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/50 transition-colors duration-150 group-focus-within:text-[#c9a96e]/90'
 
 function inputClass(invalid: boolean) {
   return [
     'w-full bg-white/5 border rounded-full h-11 pl-11 pr-4 text-white text-sm',
-    'placeholder:text-white/50 transition-all duration-150 focus:outline-none',
+    'placeholder:text-white/60 transition-all duration-150 focus:outline-none',
     'focus:ring-2 focus:ring-[#c9a96e]/40 focus:border-[#c9a96e]/80',
     'focus:shadow-[0_0_24px_rgba(201,169,110,0.12)]',
     invalid ? 'border-red-400/50' : 'border-white/10',
@@ -91,7 +91,7 @@ export function LoginForm() {
     <form ref={formRef} action={formAction} onAnimationEnd={settle} className="space-y-5">
       <div className="szn-item" style={{ ['--i' as string]: 1 }}>
         <label htmlFor="email" className={`${LABEL} mb-1`}>
-          Email <span aria-hidden="true" className="text-white/40">*</span>
+          Email <span aria-hidden="true" className="text-white/55">*</span>
         </label>
         <div className="group relative">
           <span className={ICON_WRAP}>
@@ -112,7 +112,7 @@ export function LoginForm() {
       <div className="szn-item" style={{ ['--i' as string]: 2 }}>
         <div className="mb-1 flex items-center justify-between">
           <label htmlFor="password" className={LABEL}>
-            Password <span aria-hidden="true" className="text-white/40">*</span>
+            Password <span aria-hidden="true" className="text-white/55">*</span>
           </label>
           <Link
             href="/auth/forgot-password"

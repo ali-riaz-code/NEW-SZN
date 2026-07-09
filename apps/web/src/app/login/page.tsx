@@ -196,7 +196,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="flex flex-1 flex-col items-center justify-center px-8 py-28 sm:px-12">
+            <div className="flex flex-1 flex-col items-center justify-center px-8 py-24 sm:px-12">
               <div className="mx-auto w-full max-w-sm">
                 <div className="szn-item text-center" style={{ ['--i' as string]: 0 }}>
                   <h1 className="text-3xl font-bold tracking-[-0.03em] text-white [text-wrap:balance]">
