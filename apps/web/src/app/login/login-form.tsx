@@ -90,8 +90,8 @@ export function LoginForm() {
   return (
     <form ref={formRef} action={formAction} onAnimationEnd={settle} className="space-y-5">
       <div className="szn-item" style={{ ['--i' as string]: 1 }}>
-        <label htmlFor="email" className={`${LABEL} mb-1.5`}>
-          Email <span aria-hidden="true" className="text-white/30">*</span>
+        <label htmlFor="email" className={`${LABEL} mb-1`}>
+          Email <span aria-hidden="true" className="text-white/40">*</span>
         </label>
         <div className="group relative">
           <span className={ICON_WRAP}>
@@ -110,9 +110,9 @@ export function LoginForm() {
       </div>
 
       <div className="szn-item" style={{ ['--i' as string]: 2 }}>
-        <div className="mb-1.5 flex items-center justify-between">
+        <div className="mb-1 flex items-center justify-between">
           <label htmlFor="password" className={LABEL}>
-            Password <span aria-hidden="true" className="text-white/30">*</span>
+            Password <span aria-hidden="true" className="text-white/40">*</span>
           </label>
           <Link
             href="/auth/forgot-password"

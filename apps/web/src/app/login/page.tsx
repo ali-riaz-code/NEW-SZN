@@ -201,7 +201,7 @@ export default function LoginPage() {
                 Built for performance agencies that refuse to plateau
               </p>
               <p
-                className="szn-tagline mt-6 max-w-sm text-sm leading-normal tracking-[0.02em] text-[#9ca3af]"
+                className="szn-tagline mt-4 max-w-sm text-sm leading-normal tracking-[0.02em] text-[#9ca3af]"
                 style={{ animationDelay: '420ms' }}
               >
                 Revenue, calls, ads &mdash; one real-time scoreboard your team actually checks.
