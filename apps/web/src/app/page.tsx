@@ -64,7 +64,9 @@ interface MasterDashboardData {
 
 function GoalProgressBars({ kpis, currency }: { kpis: MasterDashboardData['kpis']; currency: string }) {
   const BAND_COLOR = { green: 'bg-green-500', amber: 'bg-amber-400', red: 'bg-red-500' }
-  const BAND_TEXT = { green: 'bg-green-500/10 text-green-400', amber: 'bg-amber-400/10 text-amber-400', red: 'bg-red-500/10 text-red-400' }
+  const BAND_BG = { green: 'bg-green-500/10', amber: 'bg-amber-400/10', red: 'bg-red-500/10' }
+  const BAND_TEXT = { green: 'text-green-400', amber: 'text-amber-400', red: 'text-red-400' }
+  const BAND_GLOW = { green: 'shadow-[0_0_6px_rgba(74,222,128,0.35)]', amber: 'shadow-[0_0_6px_rgba(245,158,11,0.35)]', red: 'shadow-[0_0_6px_rgba(248,113,113,0.35)]' }
   const items = [
     { label: 'Total Revenue',   goal: kpis.totalRevenue.goal,      display: formatMoney(kpis.totalRevenue.value, kpis.totalRevenue.currency ?? currency) },
     { label: 'Cash Collected',  goal: kpis.totalCashCollected.goal, display: formatMoney(kpis.totalCashCollected.value, kpis.totalCashCollected.currency ?? currency) },
@@ -78,23 +80,23 @@ function GoalProgressBars({ kpis, currency }: { kpis: MasterDashboardData['kpis'
   if (items.length === 0) return null
 
   return (
-      <div className="bg-[#111111] rounded-2xl p-5">
+    <div className="bg-[#111111] rounded-2xl p-5">
       <SectionHeading>Monthly Goals</SectionHeading>
-      <div className="mt-4 space-y-4">
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 stagger-children">
         {items.map(({ label, goal, display }) => (
-          <div key={label}>
+          <div key={label} className="group">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs text-gray-400">{label}</span>
+              <span className="text-xs text-gray-400 group-hover:text-gray-300 transition-colors duration-150">{label}</span>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-white">{display}</span>
-                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${BAND_TEXT[goal!.band]}`}>
+                <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${BAND_BG[goal!.band]} ${BAND_TEXT[goal!.band]}`}>
                   {goal!.pct}%
                 </span>
               </div>
             </div>
-            <div className="h-1.5 w-full bg-white/[0.05] rounded-full overflow-hidden">
+            <div className="h-2 w-full bg-white/[0.05] rounded-full overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all duration-500 ${BAND_COLOR[goal!.band]}`}
+                className={`h-full rounded-full transition-all duration-700 ease-out ${BAND_COLOR[goal!.band]} ${BAND_GLOW[goal!.band]}`}
                 style={{ width: `${Math.min(goal!.pct, 100)}%` }}
               />
             </div>
