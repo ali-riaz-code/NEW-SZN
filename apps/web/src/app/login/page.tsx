@@ -142,8 +142,10 @@ export default function LoginPage() {
       >
         <GroundLineArt />
 
-        {/* Single rounded card holding both panels on one continuous surface */}
-        <SpotlightCard className="relative z-10 flex min-h-[calc(100dvh-2.5rem)] w-full max-w-[1440px] overflow-hidden rounded-3xl border border-white/[0.06] bg-[#111111] lg:min-h-[calc(100dvh-5rem)]">
+        {/* Single rounded card holding both panels on one continuous surface.
+             #login-card holds the cinematic CSS selectors (gold sweep + skyline
+             light-up); the spotlight overlay is scoped to the right panel only. */}
+        <div id="login-card" className="relative z-10 flex min-h-[calc(100dvh-2.5rem)] w-full max-w-[1440px] overflow-hidden rounded-3xl border border-white/[0.06] bg-[#111111] lg:min-h-[calc(100dvh-5rem)]">
           {/* ── Left panel — login form ── */}
           <div className="relative flex w-full flex-col overflow-y-auto lg:w-1/2">
             {/* Logo — fixed top-left, decoupled from the centered form */}
@@ -186,13 +188,11 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* ── Right panel — slogan + illustration, same continuous surface ── */}
-          <div className="relative hidden overflow-hidden border-l border-white/[0.04] lg:flex lg:w-1/2">
+          {/* ── Right panel — slogan + illustration, with spotlight overlay ── */}
+          <SpotlightCard className="relative hidden overflow-hidden border-l border-white/[0.04] lg:flex lg:w-1/2">
             <BuildingIllustration />
-            {/* Content sits above the skyline; generous top padding aligns
-             * roughly with the left panel logo, and bottom padding creates
-             * a clear pause before the illustration emerges. */}
-            <div className="relative z-10 flex flex-col justify-center px-16 py-40">
+            {/* Content pinned to top-left of the panel, above the skyline */}
+            <div className="relative z-10 flex flex-col px-12 pt-14 pb-16">
               <p
                 className="szn-tagline max-w-[28rem] text-4xl font-bold leading-[1.22] tracking-[-0.02em] text-[#e3cfa4] [text-wrap:balance]"
               >
@@ -205,8 +205,8 @@ export default function LoginPage() {
                 Revenue, calls, ads &mdash; one real-time scoreboard your team actually checks.
               </p>
             </div>
-          </div>
-        </SpotlightCard>
+          </SpotlightCard>
+        </div>
       </div>
     </div>
   )

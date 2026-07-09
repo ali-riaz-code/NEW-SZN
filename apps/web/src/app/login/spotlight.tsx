@@ -63,7 +63,7 @@ export function SpotlightCard({
   }, [])
 
   return (
-    <div id="login-card" ref={ref} className={className}>
+    <div ref={ref} className={className}>
       {children}
       <div
         aria-hidden="true"
