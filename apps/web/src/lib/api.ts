@@ -21,7 +21,7 @@ export async function apiGet<T = unknown>(
       'X-User-Id': session.user.userId,
       'X-User-Role': session.user.role,
     },
-    next: { revalidate: 30 },
+    cache: 'no-store',
   })
 
   if (!res.ok) {
