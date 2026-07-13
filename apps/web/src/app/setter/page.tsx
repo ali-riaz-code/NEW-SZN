@@ -144,18 +144,31 @@ export default async function SetterPage() {
   try {
     data = await apiGet<SetterMetrics>('/api/setter/metrics')
   } catch {
-    // fall through to empty state
+    // fall through to zero fallback
   }
 
+  // Setters see the full dashboard with zeros + the log form even before any data.
   if (!data || data.empty) {
-    return (
-      <main className="min-h-screen flex items-center justify-center p-8">
-        <div className="text-center">
-          <p className="text-gray-400 text-sm font-medium">No setter data yet</p>
-          <p className="text-gray-600 text-xs mt-1">Start logging days to see your metrics.</p>
-        </div>
-      </main>
-    )
+    data = {
+      empty: false,
+      currency: data?.currency ?? 'USD',
+      clientId: data?.clientId,
+      kpis: {
+        newConvos: { value: 0, trendPct: 0 },
+        responses: { value: 0, trendPct: 0 },
+        callProposals: { value: 0, trendPct: 0 },
+        bookedCalls: { value: 0, trendPct: 0 },
+        followUps: { value: 0, trendPct: 0 },
+        leadResponsePct: { value: 0, trendPct: 0 },
+        proposalResponsePct: { value: 0, trendPct: 0 },
+        callProposalPct: { value: 0, trendPct: 0 },
+        callLeadPct: { value: 0, trendPct: 0 },
+        pacing: { projected: 0, target: 0 },
+      },
+      bookingTrend: [],
+      heatmap: [],
+      streaks: { current: 0, best: 0, totalDays: 0, tier: 'Bronze' },
+    }
   }
 
   const { kpis, bookingTrend, heatmap, streaks } = data

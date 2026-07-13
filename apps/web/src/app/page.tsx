@@ -187,6 +187,9 @@ export default async function MasterDashboardPage() {
   if (session.user.role === 'CLOSER') redirect('/sales')
   if (session.user.role === 'SETTER') redirect('/setter')
 
+  const isAdmin = session.user.role === 'ADMIN'
+  const isClient = session.user.role === 'CLIENT'
+
   let data: MasterDashboardData | null = null
   let fetchError = false
   try {
@@ -195,7 +198,26 @@ export default async function MasterDashboardPage() {
     fetchError = true
   }
 
-  const isAdmin = session.user.role === 'ADMIN'
+  // Clients see the full dashboard with zeros when there's no data.
+  if (isClient && (fetchError || !data || data.empty)) {
+    data = {
+      currency: 'USD',
+      kpis: {
+        totalRevenue: { value: 0, trendPct: 0, sparkline: [0, 0] },
+        totalDealsWon: { value: 0, trendPct: 0, sparkline: [0, 0] },
+        bookedCalls: { value: 0, trendPct: 0, sparkline: [0, 0] },
+        pacing: { projectedRevenue: 0, currency: 'USD' },
+        totalCashCollected: { value: 0, trendPct: 0, sparkline: [0, 0] },
+        adSpend: { value: 0, trendPct: 0, sparkline: [0, 0] },
+        callsTaken: { value: 0, trendPct: 0, sparkline: [0, 0] },
+        roas: { value: 0, trendPct: 0, sparkline: [0, 0] },
+      },
+      leaderboard: [],
+      setterSummary: [],
+      revenueTrend: [],
+      dealsTrend: [],
+    }
+  }
 
   if (fetchError || !data || data.empty) {
     return <EmptyState isAdmin={isAdmin} />

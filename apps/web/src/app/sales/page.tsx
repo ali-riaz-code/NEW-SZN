@@ -267,7 +267,7 @@ export default async function SalesPage() {
   if (role !== 'CLOSER' && role !== 'ADMIN') redirect('/')
   const isAdmin = role === 'ADMIN'
 
-  const [data, followUpsData, leaderboardData] = await Promise.all([
+  let [data, followUpsData, leaderboardData] = await Promise.all([
     apiGet<SalesMetrics>('/api/sales/metrics').catch(() => null),
     apiGet<FollowUpsResp>('/api/follow-ups').catch(() => null),
     // Closer-only: the team leaderboard stays GLOBAL (not isolated to the
@@ -277,15 +277,35 @@ export default async function SalesPage() {
       : Promise.resolve(null),
   ])
 
+  // Closers see the full dashboard with zeros + the log form even before any calls.
   if (!data || data.empty) {
-    return (
-      <main className="min-h-screen flex items-center justify-center p-8">
-        <div className="text-center max-w-sm">
-          <p className="text-gray-400 text-sm font-medium">No sales data yet</p>
-          <p className="text-gray-600 text-xs mt-1">Log your first call to start tracking performance.</p>
-        </div>
-      </main>
-    )
+    data = {
+      empty: false,
+      currency: data?.currency ?? 'USD',
+      clientId: data?.clientId ?? '',
+      clientName: data?.clientName,
+      period: undefined,
+      accountabilityLock: { locked: true },
+      kpis: {
+        revenue: { value: 0, trendPct: 0 },
+        cashCollected: { value: 0, trendPct: 0 },
+        dealsWonLost: { won: 0, lost: 0, trendPct: 0 },
+        closeRate: { value: 0, trendPct: 0 },
+        showUpRate: { value: 0, trendPct: 0 },
+        deposits: { count: 0, estValueMinor: 0, currency: data?.currency ?? 'USD' },
+        revenuePerCall: { value: 0, trendPct: 0 },
+        cashPerCall: { value: 0, trendPct: 0 },
+        cashUpfrontPct: { value: 0, trendPct: 0 },
+        pifPct: { value: 0, trendPct: 0 },
+        avgDeal: { value: 0, trendPct: 0 },
+        avgCash: { value: 0, trendPct: 0 },
+      },
+      objections: [],
+      outcomeBreakdown: [],
+      revenueTrend: [],
+      recentCalls: [],
+      closers: [],
+    }
   }
 
   const { kpis, currency, period, clientName } = data
