@@ -21,7 +21,7 @@ export async function apiGet<T = unknown>(
       'X-User-Id': session.user.userId,
       'X-User-Role': session.user.role,
     },
-    cache: 'no-store',
+    next: { revalidate: 4, tags: [`api${path}`] },
   })
 
   if (!res.ok) {

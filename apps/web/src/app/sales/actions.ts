@@ -1,6 +1,6 @@
 'use server'
 import { auth } from '@/auth'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { apiSend } from '@/lib/api'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'
@@ -64,8 +64,12 @@ export async function logCallAction(
     return { error: (b as { error?: string }).error ?? 'Failed to log call.' }
   }
 
+  revalidateTag('/api/sales/metrics')
+  revalidateTag('/api/dashboard/master')
+  revalidateTag('/api/call-logs')
+  revalidateTag('/api/follow-ups')
   revalidatePath('/sales')
-  revalidatePath('/') // call feeds Master revenue/deals
+  revalidatePath('/')
   revalidatePath('/call-logs')
   revalidatePath('/follow-ups')
   return { success: true }

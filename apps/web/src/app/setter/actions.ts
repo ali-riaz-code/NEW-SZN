@@ -1,6 +1,6 @@
 'use server'
 import { auth } from '@/auth'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 
 export async function logDayAction(
   _prev: { error?: string; success?: boolean } | null,
@@ -51,6 +51,7 @@ export async function logDayAction(
     return { error: (body as { error?: string }).error ?? 'Failed to log day.' }
   }
 
+  revalidateTag('/api/setter/metrics')
   revalidatePath('/setter')
   revalidatePath('/') // setter activity feeds Master booked-calls
   return { success: true }
