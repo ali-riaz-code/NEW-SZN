@@ -86,11 +86,11 @@ export function LogCallForm({ clientId }: { clientId: string }) {
         {showMoney && (
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={LABEL}>Revenue</label>
+              <label className={LABEL}>Revenue ($)</label>
               <input name="revenue" type="number" min="0" step="0.01" defaultValue="0" className={INPUT} />
             </div>
             <div>
-              <label className={LABEL}>Cash Collected</label>
+              <label className={LABEL}>Cash Collected ($)</label>
               <input name="cashCollected" type="number" min="0" step="0.01" defaultValue="0" className={INPUT} />
             </div>
           </div>
