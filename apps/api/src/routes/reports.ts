@@ -11,6 +11,7 @@ import type { Prisma, ReportType } from '@new-szn/db'
 import { requireRole } from '../middleware/auth'
 import { id } from '../lib/validation'
 import { generateReport } from '../integrations/reports'
+import type { DateRange } from '../integrations/slack-reports'
 import { storage } from '../integrations/storage'
 
 const router = Router()
@@ -25,9 +26,15 @@ async function memberClientIds(userId: string): Promise<string[]> {
   return mems.map((m) => m.clientId)
 }
 
+const dateStr = z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
+
 const generateSchema = z.object({
   clientId: id,
   cadence: z.enum(['daily', 'weekly', 'monthly']),
+  date: dateStr.optional(),
+  startDate: dateStr.optional(),
+  endDate: dateStr.optional(),
+  month: z.string().regex(/^\d{4}-\d{2}$/).optional(),
 })
 
 // POST /api/reports/generate — "Generate Now".
@@ -43,7 +50,29 @@ router.post('/generate', requireRole(['ADMIN']), async (req, res, next) => {
     })
     if (!client) return res.status(404).json({ error: 'Client not found.' })
 
-    const result = await generateReport(parsed.data.clientId, parsed.data.cadence, userId)
+    const { clientId, cadence, date, startDate, endDate, month } = parsed.data
+    let overrideRange: DateRange | undefined
+    if (cadence === 'daily' && date) {
+      overrideRange = {
+        start: new Date(`${date}T00:00:00.000Z`),
+        end: new Date(`${date}T23:59:59.999Z`),
+      }
+    } else if (cadence === 'weekly' && startDate && endDate) {
+      overrideRange = {
+        start: new Date(`${startDate}T00:00:00.000Z`),
+        end: new Date(`${endDate}T23:59:59.999Z`),
+      }
+    } else if (cadence === 'monthly' && month) {
+      const parts = month.split('-')
+      const y = Number(parts[0])
+      const m = Number(parts[1])
+      overrideRange = {
+        start: new Date(Date.UTC(y, m - 1, 1)),
+        end: new Date(Date.UTC(y, m, 0, 23, 59, 59, 999)),
+      }
+    }
+
+    const result = await generateReport(clientId, cadence, userId, overrideRange)
     if (!result.ok) return res.status(422).json({ error: result.error })
     return res.status(201).json({ report: result.report })
   } catch (error) {

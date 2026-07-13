@@ -8,7 +8,7 @@
 
 import { prisma } from '@new-szn/db'
 import type { ReportType } from '@new-szn/db'
-import { resolveReportRange, buildReportSummary, type Cadence } from './slack-reports'
+import { resolveReportRange, buildReportSummary, type Cadence, type DateRange } from './slack-reports'
 import { generateInsights } from './ai-insights'
 import { getAiTone } from '../lib/ai-config'
 import { renderReportPdf } from './report-pdf'
@@ -54,12 +54,15 @@ export type GenerateResult =
 
 // Generate one report end-to-end and persist it. `generatedBy` must be a real
 // User id (the admin who clicked, or a resolved admin for the scheduled job).
+// When `overrideRange` is set it takes precedence — used by the "Generate Now"
+// flow where the admin picks a specific date / week / month.
 export async function generateReport(
   clientId: string,
   cadence: Cadence,
   generatedBy: string,
+  overrideRange?: DateRange,
 ): Promise<GenerateResult> {
-  const range = await resolveReportRange(clientId, cadence)
+  const range = await resolveReportRange(clientId, cadence, overrideRange)
   if (!range) return { ok: false, error: 'This client has no call data to report on.' }
 
   const summary = await buildReportSummary(clientId, range)

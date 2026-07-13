@@ -53,11 +53,16 @@ function endOfDay(d: Date): Date {
 }
 
 // Resolve the reporting window for a cadence, anchored to the client's most
-// recent data. Returns null if the client has no calls at all.
+// recent data. When overrideRange is provided it takes precedence over the
+// auto-derived anchor — used by the "Generate Now" flow with custom dates.
+// Returns null if no anchor exists and no override was given.
 export async function resolveReportRange(
   clientId: string,
   cadence: Cadence,
+  overrideRange?: DateRange,
 ): Promise<DateRange | null> {
+  if (overrideRange) return overrideRange
+
   const anchor = await mostRecentCallDate(clientId)
   if (!anchor) return null
 

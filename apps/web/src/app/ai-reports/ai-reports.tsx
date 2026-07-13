@@ -125,12 +125,42 @@ export function AiReports({ clients, isAdmin }: { clients: ClientOption[]; isAdm
     })
   }
 
-  function handleGenerate(cadence: Cadence) {
-    if (!schedClientId) return
+  // ── Date picker state ─────────────────────────────────────────────────────
+  const [pickerCadence, setPickerCadence] = useState<Cadence | null>(null)
+  const [pickDate, setPickDate] = useState('')
+  const [pickFrom, setPickFrom] = useState('')
+  const [pickTo, setPickTo] = useState('')
+  const [pickMonth, setPickMonth] = useState('')
+
+  function openPicker(cadence: Cadence) {
+    setPickerCadence(cadence)
+    setPickDate('')
+    setPickFrom('')
+    setPickTo('')
+    setPickMonth('')
+    setBanner(null)
+  }
+
+  function closePicker() {
+    setPickerCadence(null)
+  }
+
+  function handleGenerateFromPicker() {
+    const cadence = pickerCadence
+    if (!cadence || !schedClientId) return
+    closePicker()
     setBanner(null)
     setGenCadence(cadence)
+
+    const opts: Record<string, string> = {}
+    if (cadence === 'daily' && pickDate) opts.date = pickDate
+    else if (cadence === 'weekly' && pickFrom && pickTo) {
+      opts.startDate = pickFrom
+      opts.endDate = pickTo
+    } else if (cadence === 'monthly' && pickMonth) opts.month = pickMonth
+
     startGen(async () => {
-      const res = await generateReportAction(schedClientId, cadence)
+      const res = await generateReportAction(schedClientId, cadence, Object.keys(opts).length ? opts : undefined)
       setGenCadence(null)
       if (res.error) {
         setBanner({ type: 'error', msg: res.error })
@@ -140,6 +170,10 @@ export function AiReports({ clients, isAdmin }: { clients: ClientOption[]; isAdm
         loadHistory(1)
       }
     })
+  }
+
+  function handleGenerate(cadence: Cadence) {
+    openPicker(cadence)
   }
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
@@ -245,6 +279,89 @@ export function AiReports({ clients, isAdmin }: { clients: ClientOption[]; isAdm
             AI coaching narrative included in every PDF report.
           </p>
         </div>
+
+        {/* ── Date picker modal ── */}
+        {pickerCadence && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div className="bg-[#111111] border border-white/[0.08] rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+              <h3 className="text-sm font-semibold text-white mb-4 capitalize">
+                Generate {pickerCadence} report
+              </h3>
+
+              {pickerCadence === 'daily' && (
+                <label className="block">
+                  <span className="text-[11px] text-gray-500 block mb-1.5">Select date</span>
+                  <input
+                    type="date"
+                    value={pickDate}
+                    onChange={(e) => setPickDate(e.target.value)}
+                    className="w-full bg-[#1a1a1a] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#c9a96e]/40"
+                    style={{ colorScheme: 'dark' }}
+                  />
+                </label>
+              )}
+
+              {pickerCadence === 'weekly' && (
+                <div className="space-y-3">
+                  <label className="block">
+                    <span className="text-[11px] text-gray-500 block mb-1.5">From</span>
+                    <input
+                      type="date"
+                      value={pickFrom}
+                      onChange={(e) => setPickFrom(e.target.value)}
+                      className="w-full bg-[#1a1a1a] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#c9a96e]/40"
+                      style={{ colorScheme: 'dark' }}
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-[11px] text-gray-500 block mb-1.5">To</span>
+                    <input
+                      type="date"
+                      value={pickTo}
+                      onChange={(e) => setPickTo(e.target.value)}
+                      className="w-full bg-[#1a1a1a] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#c9a96e]/40"
+                      style={{ colorScheme: 'dark' }}
+                    />
+                  </label>
+                </div>
+              )}
+
+              {pickerCadence === 'monthly' && (
+                <label className="block">
+                  <span className="text-[11px] text-gray-500 block mb-1.5">Select month</span>
+                  <input
+                    type="month"
+                    value={pickMonth}
+                    onChange={(e) => setPickMonth(e.target.value)}
+                    className="w-full bg-[#1a1a1a] border border-white/[0.08] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#c9a96e]/40"
+                    style={{ colorScheme: 'dark' }}
+                  />
+                </label>
+              )}
+
+              <div className="flex items-center justify-end gap-2 mt-5">
+                <button
+                  onClick={closePicker}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-gray-500 bg-white/[0.04] border border-white/[0.08] hover:text-gray-300 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleGenerateFromPicker}
+                  disabled={
+                    genPending ||
+                    (pickerCadence === 'daily' && !pickDate) ||
+                    (pickerCadence === 'weekly' && (!pickFrom || !pickTo)) ||
+                    (pickerCadence === 'monthly' && !pickMonth)
+                  }
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#c9a96e]/10 text-[#c9a96e] border border-[#c9a96e]/25 hover:bg-[#c9a96e]/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Generate
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       )}
 

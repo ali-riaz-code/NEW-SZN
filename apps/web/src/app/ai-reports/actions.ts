@@ -75,8 +75,19 @@ export async function fetchReportsAction(
 export async function generateReportAction(
   clientId: string,
   cadence: Cadence,
+  opts?: {
+    date?: string
+    startDate?: string
+    endDate?: string
+    month?: string
+  },
 ): Promise<{ error?: string; ok?: boolean }> {
-  const res = await apiSend('POST', '/api/reports/generate', { clientId, cadence })
+  const body: Record<string, unknown> = { clientId, cadence }
+  if (opts?.date) body.date = opts.date
+  if (opts?.startDate) body.startDate = opts.startDate
+  if (opts?.endDate) body.endDate = opts.endDate
+  if (opts?.month) body.month = opts.month
+  const res = await apiSend('POST', '/api/reports/generate', body)
   if (!res.ok) return { error: res.error }
   revalidatePath('/ai-reports')
   return { ok: true }
